@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="You Glow Cebu Beauty & Wellness — beauty, wellness, and self-care products with clear information and caring support." />
+  <title>You Glow Cebu | Beauty & Wellness</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="image" href="assets/landing/wellness-hero-v2.jpg" fetchpriority="high">
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Mrs+Saint+Delafield&family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="landing-document.css?v=33" />
+  <link rel="stylesheet" href="page-transition.css?v=1" />
+  <style>
+    .reveal{opacity:0!important;transform:translateY(24px)!important;transition:opacity .65s ease,transform .65s cubic-bezier(.22,1,.36,1)!important}.reveal.visible{opacity:1!important;transform:translateY(0)!important}.product-grid .reveal:nth-child(2),.feedback-grid .reveal:nth-child(2){transition-delay:.08s!important}.product-grid .reveal:nth-child(3),.feedback-grid .reveal:nth-child(3){transition-delay:.16s!important}.product-grid .reveal:nth-child(4){transition-delay:.24s!important}@media(prefers-reduced-motion:reduce){.reveal{opacity:1!important;transform:none!important;transition:none!important}}
+    .about-details-card{display:contents}.about-details-card>h2{display:none}
+    @media (max-width:760px){
+      .site-header{position:fixed!important;inset:0 0 auto!important;z-index:120!important;height:70px!important;display:grid!important;grid-template-columns:1fr auto auto!important;background:rgba(255,253,249,.97)!important}.site-header .landing-header-tools{display:flex!important;align-items:center!important;visibility:visible!important;opacity:1!important}.site-header .landing-profile-link,.site-header .landing-cart-link{width:36px!important;height:36px!important;display:grid!important;place-items:center!important;visibility:visible!important;opacity:1!important;color:var(--brown)!important}.site-header .landing-profile-link::after,.site-header .landing-cart-link::after{display:block!important;width:21px!important;height:21px!important}.site-header .menu-button{display:flex!important;visibility:visible!important}
+      .landing-cart-backdrop{z-index:129!important}.landing-cart-drawer{z-index:130!important}.landing-cart-head button{position:relative;z-index:2;touch-action:manipulation}
+      .product-info-backdrop{z-index:140!important}.product-info-card{z-index:1}.product-info-close{z-index:3!important}
+      .feedback-grid{align-items:start!important}.feedback-grid .customer-feedback-card{min-height:0!important;height:auto!important;padding:14px 8px!important}.customer-feedback-card blockquote{min-height:0!important;margin:8px 0 12px!important}.customer-feedback-card footer{min-height:0!important;height:auto!important;margin:0!important;padding:0!important;display:block!important}.customer-feedback-card footer strong,.customer-feedback-card footer small{display:block}.community{padding-bottom:32px!important}
+      .about{width:100%;max-width:100%;display:block!important;padding:38px 16px!important}.about-intro{width:100%;max-width:none;text-align:center}.about .script{margin:0 0 2px;font-size:30px;line-height:1}.about h2{margin:0;font-size:44px;line-height:1}.about-details-trigger{margin:18px auto 25px!important}
+      .about-contact{width:100%!important;max-width:none!important;margin:0!important;padding:20px!important;text-align:left}.about-contact h3{font-size:25px}.about-contact>p:not(.eyebrow){max-width:none;font-size:10px}.about-contact dl{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:15px 0}.about-contact dl div,.about-contact dl div:last-child{min-width:0;grid-column:auto;padding:8px 5px;border:1px solid var(--line);border-radius:9px}.about-contact dt{font-size:6px}.about-contact dd{font-size:8px;line-height:1.35;overflow-wrap:anywhere}.about-contact .contact-socials{grid-template-columns:repeat(3,1fr);gap:7px}.about-contact .social-link{justify-content:center}.about-contact .button{width:100%;justify-content:center}
+      .about-copy{position:fixed!important;inset:0!important;z-index:110!important;width:100%!important;height:100dvh!important;padding:18px!important;display:grid!important;place-items:center!important;overflow:hidden!important;background:rgba(45,31,24,.56)!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;transition:opacity .25s ease!important}.about-copy::before{display:none!important}.about-details-toggle:checked~.about-copy{opacity:1!important;visibility:visible!important;pointer-events:auto!important}.about-details-card{position:relative;width:min(520px,100%);max-height:calc(100dvh - 36px);padding:30px 24px 27px;display:block;overflow:auto;border-radius:22px;background:#fffdf9;box-shadow:0 28px 80px rgba(45,29,20,.3);text-align:left}.about-details-card>h2{display:block;margin:0 45px 18px 0;font-size:36px}.about-details-card h3{margin:24px 0 7px;font-size:24px}.about-details-card p{margin:0 0 13px;color:#6f5c53;font-size:12px;line-height:1.65}.about-details-card>p:nth-of-type(1){color:var(--ink);font-family:var(--display);font-size:14px}.about-details-card .about-closing{margin:20px 0 0;padding-top:18px;border-top:1px solid var(--line);color:var(--brown);font:400 20px/1.35 var(--display)}.about-details-card .about-details-close{position:absolute;top:22px;right:20px;display:grid;width:38px;height:38px;place-items:center;border-radius:50%;background:var(--cream);font-size:25px;cursor:pointer}
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand header-brand" href="#home" aria-label="You Glow Cebu home">
+      <span>You Glow Cebu</span><small>BEAUTY &amp; WELLNESS</small>
+    </a>
+    <button class="menu-button" type="button" aria-label="Open menu" aria-expanded="false"><span></span><span></span></button>
+    <nav aria-label="Main navigation">
+      <a href="#home">Home</a><a href="/products">Our products</a><a href="#about">About us</a><a href="#" data-open-faq>FAQs</a><a href="#contact">Contact</a>
+    </nav>
+    <div class="landing-header-tools" aria-label="Customer actions">
+      <a class="landing-profile-link" href="/account" aria-label="Customer profile"></a>
+      <button class="landing-cart-link" id="landingCartTrigger" type="button" aria-label="Open shopping cart"><b id="landingCartCount" hidden>0</b></button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <div class="hero-copy reveal">
+        <p class="eyebrow">You Glow Cebu Beauty &amp; Wellness</p>
+        <h1>Your Glow,<br>Your Journey</h1>
+        <p>Thoughtful wellness and beauty support, designed around you.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="/products">Explore our collection <span>→</span></a>
+          <a class="text-link" href="#about">Our story <span>↓</span></a>
+        </div>
+      </div>
+      <div class="hero-gallery reveal" aria-label="You Glow Cebu wellness collection">
+        <div class="hero-halo"></div>
+        <figure class="hero-image hero-image-main"><img src="assets/landing/ghk-cu-50mg.jpg" alt="You Glow Cebu GHK-Cu 50 mg wellness product" decoding="async"></figure>
+        <figure class="hero-image hero-image-small"><img src="assets/landing/tirzepatide-15mg.jpg" alt="You Glow Cebu Tirzepatide 15 mg wellness product" decoding="async"></figure>
+        <p class="hero-note"><strong>Thoughtfully selected</strong><span>Beauty &amp; wellness support, designed around you.</span></p>
+      </div>
+    </section>
+
+    <section class="collection section-shell" id="products">
+      <div class="section-heading reveal">
+        <p class="eyebrow">Explore our products</p>
+        <h2>Explore Our Collection</h2>
+        <p>Discover our beauty and wellness offerings.</p>
+      </div>
+      <div class="product-grid">
+        <article class="product-tile reveal">
+          <div class="product-photo"><img src="assets/landing/tirzepatide-15mg.jpg" alt="Tirzepatide 15 mg" loading="lazy" decoding="async"></div>
+          <div><p>Weight management</p><h3 data-mobile-title="Weight Management">Tirzepatide <span>15 mg</span></h3><a href="#" data-product-info="tirzepatide">Learn more <span>→</span></a></div>
+        </article>
+        <article class="product-tile reveal">
+          <div class="product-photo"><img src="assets/landing/tirzepatide-30mg.jpg" alt="Tirzepatide 30 mg" loading="lazy" decoding="async"></div>
+          <div><p>Weight management</p><h3 data-mobile-title="Wellness Essentials">Tirzepatide <span>30 mg</span></h3><a href="#" data-product-info="tirzepatide">Learn more <span>→</span></a></div>
+        </article>
+        <article class="product-tile reveal">
+          <div class="product-photo"><img src="assets/landing/ghk-cu-50mg.jpg" alt="GHK-Cu 50 mg" loading="lazy" decoding="async"></div>
+          <div><p>Skin &amp; beauty</p><h3 data-mobile-title="Skin &amp; Beauty">GHK-Cu <span>50 mg</span></h3><a href="#" data-product-info="ghk-cu">Learn more <span>→</span></a></div>
+        </article>
+        <article class="product-tile reveal">
+          <div class="product-photo"><img src="assets/landing/nad-50mg.jpg" alt="NAD+ 50 mg" loading="lazy" decoding="async"></div>
+          <div><p>Cellular wellness</p><h3>NAD+ <span>50 mg</span></h3><a href="#" data-product-info="nad">Learn more <span>→</span></a></div>
+        </article>
+      </div>
+      <a class="button button-outline" href="/products">View all products <span>→</span></a>
+    </section>
+
+    <section class="community">
+      <div class="community-copy reveal">
+        <p class="eyebrow">The You Glow community</p>
+        <h2>A Community That Glows</h2>
+        <p>Real support, thoughtful communication, and a wellness experience centered around you.</p>
+      </div>
+      <div class="trust-grid feedback-grid" id="customerFeedback" aria-live="polite">
+        <article class="feedback-loading"><span>★</span><h3>Customer feedback</h3><p>Loading recent customer experiences…</p></article>
+      </div>
+    </section>
+
+    <section class="about section-shell" id="about">
+      <input class="about-details-toggle" id="aboutDetailsToggle" type="checkbox" hidden>
+      <div class="about-intro reveal">
+        <p class="script">Your glow is personal</p>
+        <h2>About Us</h2>
+        <label class="about-details-trigger" id="aboutDetailsTrigger" for="aboutDetailsToggle">View About Us <span>→</span></label>
+        <aside class="contact-card about-contact" id="contact">
+          <p class="eyebrow">Contact us</p>
+          <h3>Let’s stay connected.</h3>
+          <p>Reach our Cebu-based team for product, order, and delivery inquiries.</p>
+          <dl><div><dt>Phone</dt><dd><a href="tel:+639615631348">0961 563 1348</a></dd></div><div><dt>Email</dt><dd><a href="mailto:weightlosscebu@gmail.com">weightlosscebu@gmail.com</a></dd></div><div><dt>Location</dt><dd>Cebu City, Philippines</dd></div></dl>
+          <div class="contact-socials" aria-label="You Glow Cebu social media">
+            <a class="social-link facebook" href="https://www.facebook.com/" target="_blank" rel="noreferrer"><span aria-hidden="true"></span><b>Facebook</b></a>
+            <a class="social-link instagram" href="https://www.instagram.com/youglowcebu/" target="_blank" rel="noreferrer"><span aria-hidden="true"></span><b>Instagram</b></a>
+            <a class="social-link whatsapp" href="https://wa.me/639615631348" target="_blank" rel="noreferrer"><span aria-hidden="true"></span><b>WhatsApp</b></a>
+          </div>
+          <a class="button button-primary" href="/account">Message our team <span>→</span></a>
+        </aside>
+      </div>
+      <div class="about-copy reveal">
+        <article class="about-details-card" role="dialog" aria-modal="true" aria-labelledby="aboutModalTitle">
+        <label class="about-details-close" id="aboutDetailsClose" for="aboutDetailsToggle" aria-label="Close About Us details">×</label>
+        <h2 id="aboutModalTitle">About Us</h2>
+        <p>At <strong>You Glow Cebu Beauty &amp; Wellness</strong>, our mission is to help you feel healthier, more confident, and empowered throughout your wellness journey. We believe that glowing up goes beyond appearance. It is about caring for your body, building healthy habits, and becoming the best version of yourself.</p>
+        <h3>Our Products</h3>
+        <p>We offer a selection of wellness products designed around different goals, from weight management to skin-focused beauty and emerging wellness interests.</p>
+        <p>Understanding what each product is intended for can help you make more informed decisions about your personal wellness journey.</p>
+        <h3>We're Here to Support You</h3>
+        <p>Your journey is personal, and we're here to help you navigate it. At You Glow Cebu, we provide personalised progress trackers, educational video guides, printed reference materials, and online support to help you stay informed and organised throughout your journey.</p>
+        <p>Our goal is simple: to help you feel healthier, fitter, and glowier, one step at a time.</p>
+        <p class="about-closing">You Glow. You Grow. You Become Your Best Self.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="cta reveal">
+      <div><p class="eyebrow">You glow. You grow.</p><h2>Ready to Begin Your Glow Journey?</h2><p>Explore our product collections, learn more about what we offer, and connect with our team if you have questions.</p><a class="button button-light" href="/products">Explore and order <span>→</span></a></div>
+      <div class="cta-image"><img src="assets/landing/nad-50mg.jpg" alt="You Glow Cebu NAD+ product" loading="lazy" decoding="async"></div>
+    </section>
+
+    <section class="faq-contact section-shell" id="faqs" hidden>
+      <div class="faq-wrap" id="faqContentSource">
+        <div class="section-heading"><p class="eyebrow">Help &amp; information</p><h2>Frequently Asked Questions (FAQs)</h2></div>
+        <div class="faq-list">
+          <details><summary>1. What payment methods do you accept?</summary><p>We currently accept payments through GCash and BPI bank transfer. Full payment is required before your order is processed and shipped or delivered.</p></details>
+          <details><summary>2. What is your return and exchange policy?</summary><p>Due to the nature of our products, all sales are generally final. Returns and exchanges are not accepted for change of mind. However, if you receive an incorrect, damaged, or defective item, please contact us so we can review your concern.</p></details>
+          <details><summary>3. Where are you located?</summary><p>We are a Cebu-based online shop serving customers throughout the Philippines.</p></details>
+          <details><summary>4. Do you offer delivery?</summary><p>Yes! We use Maxim for Cebu City and nearby areas, and J&amp;T Express for deliveries outside Cebu City, subject to courier coverage and product shipping restrictions.</p></details>
+          <details><summary>5. How long does delivery take?</summary><p>Local deliveries may be available on the same day, depending on rider availability. Nationwide shipping times depend on your destination and the courier's delivery schedule.</p></details>
+          <details><summary>6. Can I place an order without paying first?</summary><p>No. Full payment through GCash or BPI bank transfer is required before we process and dispatch your order.</p></details>
+          <details><summary>7. How can I track my order?</summary><p>For local deliveries, we can provide available delivery updates. For J&amp;T Express shipments, we will share tracking details when available.</p></details>
+          <details><summary>8. How do I place an order?</summary><p>Contact us through our official communication channels, select your desired product, provide your delivery details, and complete payment. Your order will be processed once payment is confirmed.</p></details>
+          <details><summary>9. Will I receive instructions with my order?</summary><p>We provide applicable product information and educational materials with our orders. These materials do not replace professional medical advice or instructions from a qualified healthcare provider.</p></details>
+          <details><summary>10. Do you provide support after purchase?</summary><p>Yes! We offer online customer support, educational resources, and personalised tracking materials where applicable to help you stay organised throughout your wellness journey.</p></details>
+          <details><summary>11. Are your products suitable for everyone?</summary><p>No. Product suitability depends on the specific product and individual circumstances. Prescription medications and injectable products require appropriate medical assessment and supervision. Please consult a qualified healthcare professional before use.</p></details>
+          <details><summary>12. How can I contact you?</summary><p>You can reach us through:<br><strong>Email:</strong> <a href="mailto:weightlosscebu@gmail.com">weightlosscebu@gmail.com</a><br><strong>Phone:</strong> <a href="tel:+639615631348">0961 563 1348</a><br>We are happy to assist with your orders, delivery inquiries, and general product questions.</p></details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="product-info-backdrop" id="productInfoBackdrop" aria-hidden="true">
+    <section class="product-info-card" role="dialog" aria-modal="true" aria-labelledby="productInfoTitle">
+      <button class="product-info-close" id="productInfoClose" type="button" aria-label="Close product information">×</button>
+      <div class="product-info-visual"><img id="productInfoImage" src="" alt=""></div>
+      <div class="product-info-copy"><p class="eyebrow" id="productInfoCategory"></p><h2 id="productInfoTitle"></h2><p id="productInfoDescription"></p><ul id="productInfoBenefits"></ul><p class="product-info-note">For educational purposes only. Product suitability varies by individual. Prescription or injectable products require assessment and supervision by a qualified healthcare professional.</p><a class="button button-primary" href="/products">View products <span>→</span></a></div>
+    </section>
+  </div>
+
+  <div class="faq-modal-backdrop" id="faqModal" aria-hidden="true">
+    <section class="faq-modal-card" role="dialog" aria-modal="true" aria-labelledby="faqModalTitle">
+      <header><div><p class="eyebrow">Help &amp; information</p><h2 id="faqModalTitle">Frequently Asked Questions</h2></div><button id="faqModalClose" type="button" aria-label="Close frequently asked questions">×</button></header>
+      <div class="faq-modal-list" id="faqModalList"></div>
+    </section>
+  </div>
+
+  <div class="landing-cart-backdrop" id="landingCartBackdrop"></div>
+  <aside class="landing-cart-drawer" id="landingCartDrawer" aria-label="Shopping bag" aria-hidden="true">
+    <div class="landing-cart-head"><h2>Your bag</h2><button id="landingCartClose" type="button" aria-label="Close cart">×</button></div>
+    <div class="landing-cart-items" id="landingCartItems"></div>
+    <div class="landing-cart-summary"><div><span>Subtotal</span><strong id="landingCartSubtotal">₱0</strong></div><small>Shipping is calculated at checkout.</small><a class="button landing-cart-action" href="/products?cart=open">Checkout <span>→</span></a></div>
+  </aside>
+
+  <footer class="site-footer">
+    <a class="footer-wordmark" href="#home" aria-label="You Glow Cebu home"><span aria-hidden="true"></span><strong>You Glow Cebu</strong><small>BEAUTY &amp; WELLNESS</small></a>
+    <nav class="footer-nav" aria-label="Footer navigation"><a href="#home">Home</a><i></i><a href="/products">Our Collection</a><i></i><a href="#" data-open-faq>FAQs</a><i></i><a href="#contact">Contact</a></nav>
+    <div class="footer-socials" aria-label="Social media">
+      <a href="https://www.instagram.com/youglowcebu/" target="_blank" rel="noreferrer" aria-label="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle class="fill" cx="17.5" cy="6.5" r="1"></circle></svg></a>
+      <a href="https://www.facebook.com/" target="_blank" rel="noreferrer" aria-label="Facebook"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="fill" d="M14 8h3V4h-3c-3 0-5 2-5 5v3h-3v4h3v8h4v-8h3l1-4h-4V9c0-.7.3-1 1-1Z"></path></svg></a>
+    </div>
+    <p class="footer-disclaimer">Beauty and wellness information for general educational purposes.</p>
+    <p class="copyright">© <span id="year"></span> You Glow Cebu Beauty &amp; Wellness</p>
+  </footer>
+  <script src="page-transition.js?v=4"></script>
+  <script src="script.js?v=13"></script>
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Admin | You Glow Cebu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Italiana&family=Mrs+Saint+Delafield&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/admin.css?v=12">
+  <link rel="stylesheet" href="/admin-modern.css?v=34">
+  <link rel="stylesheet" href="/uniform-interface.css?v=7">
+  <link rel="stylesheet" href="/admin-messages-modern.css?v=27">
+</head>
+<body class="admin-page">
+  <aside class="admin-nav">
+    <a class="portal-brand" href="/" aria-label="You Glow Cebu home"><span>You Glow Cebu</span><small>Beauty &amp; Wellness</small></a>
+    <nav class="admin-links" aria-label="Admin modules">
+      <button class="active" data-module="overview"><span>Dashboard</span></button>
+      <button data-module="products"><span>Products</span></button>
+      <button data-module="orders"><span>Orders</span><b id="pendingBadge" hidden>0</b></button>
+      <button data-module="inventory"><span>Inventory</span></button>
+      <button data-module="customers"><span>Customers</span></button>
+      <button data-module="messages"><span>Messages</span><b id="inboxBadge" hidden>0</b></button>
+      <button data-module="discounts"><span>Discounts</span></button>
+      <button data-module="reports"><span>Reports</span></button>
+      <button data-module="payments"><span>Payments</span></button>
+      <button data-module="administrators"><span>Admins</span></button>
+    </nav>
+    <div class="admin-nav-footer"><a class="back-store" href="/products">← View storefront</a><button type="button" id="adminSignOut">Sign out</button></div>
+  </aside>
+
+  <main class="admin-main">
+    <header class="admin-header">
+      <div class="admin-heading-copy">
+        <h1 id="moduleTitle">Dashboard</h1>
+        <nav class="admin-breadcrumb" aria-label="Breadcrumb">
+          <span id="moduleKicker">Admin</span><i aria-hidden="true">/</i><small id="moduleDescription">Dashboard</small>
+        </nav>
+      </div>
+      <div class="admin-actions">
+        <button id="notificationsButton" aria-label="Notifications">Notifications</button>
+        <span class="avatar" aria-hidden="true">JA</span>
+        <div class="admin-identity"><strong id="adminIdentityName">Administrator</strong><small>System Administrator</small></div>
+      </div>
+    </header>
+
+    <section class="admin-module active" data-admin-module="overview" aria-label="Dashboard">
+      <div class="metric-grid">
+        <article><span>Net revenue</span><strong id="revenue">₱0</strong><small>Product sales only · delivery fees excluded</small></article>
+        <article class="orders-metric"><span>Total orders</span><strong id="orderCount">0</strong><div class="metric-split"><small><b id="ordersToday">0</b>Today</small><small><b id="ordersMonth">0</b>This month</small></div></article>
+        <article><span>Most sales per product</span><strong class="metric-product-name" id="topSellingProduct">—</strong><small id="topSellingProductUnits">No verified product sales yet</small></article>
+        <article><span>Active customers</span><strong id="activeCustomerCount">0</strong><small>Customers with valid orders</small></article>
+      </div>
+      <div class="dashboard-grid dashboard-three-column">
+        <article class="panel sales-panel">
+          <div class="panel-head"><div><p class="eyebrow">Performance</p><h2>Sales overview</h2></div><select aria-label="Sales period"><option>Last 7 days</option><option>Last 30 days</option></select></div>
+          <div class="chart"><div class="chart-labels"><span>₱30k</span><span>₱20k</span><span>₱10k</span><span>₱0</span></div><div class="bars"><i style="height:38%"><b>Mon</b></i><i style="height:57%"><b>Tue</b></i><i style="height:44%"><b>Wed</b></i><i style="height:75%"><b>Thu</b></i><i style="height:64%"><b>Fri</b></i><i style="height:91%"><b>Sat</b></i><i style="height:72%"><b>Sun</b></i></div></div>
+        </article>
+        <article class="panel stock-panel">
+          <div class="panel-head"><div><p class="eyebrow">Inventory</p><h2>Stock inventory</h2></div><button data-open-module="inventory">View all</button></div>
+          <div class="inventory-pie-wrap"><div class="inventory-pie" id="inventoryPie" role="img" aria-label="Inventory distribution by product"><span><strong id="dashboardStockUnits">0</strong><small>Total units</small></span></div><div class="inventory-pie-legend" id="inventoryPieLegend"></div></div>
+        </article>
+        <article class="panel feedback-panel">
+          <div class="panel-head"><div><p class="eyebrow">Community</p><h2>Customer feedback</h2></div></div>
+          <div class="dashboard-feedback-list" id="dashboardFeedback"><p class="empty-admin-state">Loading customer feedback…</p></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="admin-module" data-admin-module="products" id="products" aria-label="Products">
+      <div class="product-manager">
+        <div class="module-action-row product-toolbar"><div class="manager-stats"><span><b id="activeProductCount">0</b> active</span><span><b id="draftProductCount">0</b> hidden</span></div><button class="primary-action" id="addProduct">+ Add product</button></div>
+        <div class="product-admin-grid" id="productAdminGrid"></div>
+      </div>
+    </section>
+
+    <section class="admin-module" data-admin-module="orders" aria-label="Orders">
+      <article class="panel orders-panel" id="orders">
+        <nav class="order-folders" aria-label="Order status folders">
+          <button class="active" type="button" data-order-folder="pending">Pending <b>0</b></button>
+          <button type="button" data-order-folder="packing">Packing <b>0</b></button>
+          <button type="button" data-order-folder="in_transit">In Transit <b>0</b></button>
+          <button type="button" data-order-folder="delivered">Delivered <b>0</b></button>
+          <button type="button" data-order-folder="cancelled">Cancelled <b>0</b></button>
+          <button type="button" data-order-folder="archived">Archived <b>0</b></button>
+        </nav>
+        <div class="table-wrap"><table><thead><tr><th>Order</th><th>Customer</th><th>Date</th><th>Payment</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="orderRows"></tbody></table></div>
+        <nav class="product-pagination" id="orderPagination" aria-label="Order pages"></nav>
+      </article>
+    </section>
+
+    <section class="admin-module" data-admin-module="inventory" id="inventory" aria-label="Inventory">
+      <div class="inventory-workspace">
+        <article class="panel stock-panel"><div class="panel-head"><div><p class="eyebrow">Stock control</p><h2>Product quantities</h2><small>Products with 5 units or fewer are highlighted.</small></div><button data-open-module="products">Manage products</button></div><div id="inventoryStockAlerts"></div><nav class="product-pagination" id="inventoryStockPagination" aria-label="Inventory product pages"></nav></article>
+        <article class="panel expiry-panel"><div class="panel-head"><div><p class="eyebrow">Batch safety</p><h2>Expiry watch</h2></div></div><div id="expiryRows"></div><nav class="product-pagination" id="inventoryExpiryPagination" aria-label="Expiry record pages"></nav></article>
+      </div>
+    </section>
+
+    <section class="admin-module" data-admin-module="payments" id="payments" aria-label="Payment settings">
+      <div class="payment-settings-workspace">
+        <div class="payment-settings-list" id="paymentSettings"><p class="empty-admin-state">Loading payment methods…</p></div>
+      </div>
+    </section>
+
+    <section class="admin-module" data-admin-module="customers" id="customers" aria-label="Customers">
+      <div class="customer-directory-workspace">
+        <div class="module-action-row"><button class="primary-action" id="addCustomer" type="button">+ Add customer</button></div>
+        <div class="customer-directory" id="customerDirectory"><p class="empty-admin-state">Loading customers…</p></div>
+        <nav class="product-pagination" id="customerPagination" aria-label="Customer pages"></nav>
+      </div>
+    </section>
+
+    <section class="admin-module" data-admin-module="messages" id="crm" aria-label="Customer messages">
+      <div class="crm-workspace">
+        <div class="crm-grid">
+          <aside class="client-list" id="clientList"><label class="client-search"><span aria-hidden="true"></span><input id="messageClientSearch" type="search" placeholder="Search conversations" aria-label="Search customer conversations"></label><div class="client-list-results" id="clientListRows"></div></aside>
+          <article class="client-profile">
+            <div class="client-identity"><span id="clientInitials">MS</span><div><h3 id="clientName">Mia Santos</h3><p id="clientContact">mia@example.com · 0917 555 0198</p></div><b id="clientSegment">Returning</b></div>
+            <div class="client-stats"><div><span>Completed orders</span><strong id="clientOrders">2</strong></div><div><span>Lifetime spend</span><strong id="clientSpend">₱7,270</strong></div><div><span>Eligible offer</span><strong id="clientOffer">GLOW250</strong></div></div>
+            <div class="profile-tabs"><button class="active">Conversation</button><button>Order history</button><button>Internal notes</button></div>
+            <div class="admin-conversation" id="adminMessages"></div>
+            <form class="admin-reply" id="adminReply"><textarea required placeholder="Reply to this customer…"></textarea><button>Send reply →</button></form>
+            <p class="internal-warning">Customer-visible reply. Keep sensitive operational details in internal notes.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="admin-module" data-admin-module="discounts" id="discounts" aria-label="Discounts">
+      <div class="discount-manager">
+        <div class="module-action-row"><button class="primary-action" id="addDiscount" type="button">+ Add discount</button></div>
+        <div class="discount-list" id="discountList"><p class="empty-admin-state">Loading discounts…</p></div>
+      </div>
+    </section>
+
+    <section class="admin-module" data-admin-module="reports" id="reports" aria-label="Reports">
+      <div class="reports-workspace">
+        <div class="reports-toolbar"><div class="report-date-range"><label>From<input type="date" id="reportDateFrom"></label><label>To<input type="date" id="reportDateTo"></label><button type="button" id="clearReportDates">Clear dates</button></div><div class="report-export-controls"><label>Format<select id="reportExportFormat"><option value="pdf">PDF</option><option value="excel">Excel</option></select></label><button class="primary-action" id="printReports" type="button">Export report</button></div></div>
+        <header class="report-print-header"><strong>You Glow Cebu Beauty &amp; Wellness</strong><h1 id="reportPrintTitle">Sales report</h1><p id="reportPrintRange">All recorded dates</p></header>
+        <nav class="report-folders" aria-label="Report folders"><button class="active" type="button" data-report-folder="sales">Sales <b id="reportSalesCount">0</b></button><button type="button" data-report-folder="orders">Orders <b id="reportOrdersCount">0</b></button><button type="button" data-report-folder="inventory">Inventory <b id="reportInventoryCount">0</b></button><button type="button" data-report-folder="expiry">Expiry <b id="reportExpiryCount">0</b></button></nav>
+        <section class="report-folder active" data-report-panel="sales"><div class="report-summary-grid report-sales-summary"><article><span>Total product sales</span><strong id="reportTotalSales">₱0</strong><small>Completed-order sales excluding delivery fees</small></article><article><span>Completed orders</span><strong id="reportVerifiedOrderCount">0</strong><small id="reportDateLabel">All recorded dates</small></article></div><article class="report-section"><header><div><p class="eyebrow">Completed transactions</p><h2>Completed orders</h2><small>Only completed orders are recorded as sales.</small></div></header><div class="report-table-wrap"><table><thead><tr><th>Order</th><th>Customer</th><th>Products</th><th>Completed date</th><th>Product sales</th></tr></thead><tbody id="reportSalesRows"></tbody></table></div></article></section>
+        <section class="report-folder" data-report-panel="orders"><article class="report-section"><header><div><p class="eyebrow">Transactions</p><h2>Order details</h2><small><b id="reportOrderCount">0</b> orders in the selected range</small></div></header><div class="report-table-wrap"><table><thead><tr><th>Order</th><th>Customer</th><th>Products</th><th>Date</th><th>Product sales</th><th>Status</th></tr></thead><tbody id="reportOrderRows"></tbody></table></div></article></section>
+        <section class="report-folder" data-report-panel="inventory"><div class="report-summary-grid report-inventory-summary"><article><span>Total products</span><strong id="reportProductCount">0</strong><small id="reportStockCount">0 total inventory units</small></article></div><article class="report-section"><header><div><p class="eyebrow">Current stock</p><h2>Inventory details</h2><small>Current quantities are not affected by the date range.</small></div></header><div class="report-table-wrap"><table><thead><tr><th>Product</th><th>Batch</th><th>Quantity</th><th>Stock status</th></tr></thead><tbody id="reportInventoryRows"></tbody></table></div></article></section>
+        <section class="report-folder" data-report-panel="expiry"><article class="report-section"><header><div><p class="eyebrow">Batch safety</p><h2>Expiry details</h2><small>Filtered using each product's expiry date.</small></div></header><div class="report-table-wrap"><table><thead><tr><th>Product</th><th>Batch</th><th>Expiry</th><th>Remaining</th></tr></thead><tbody id="reportExpiryRows"></tbody></table></div></article></section>
+      </div>
+    </section>
+
+    <section class="admin-module" data-admin-module="administrators" id="administrators" aria-label="Administrators">
+      <div class="admin-users-workspace">
+        <div class="module-action-row"><button class="primary-action" id="addAdministrator" type="button">+ Add administrator</button></div>
+        <div class="admin-users-list" id="administratorList"><p class="empty-admin-state">Loading administrators…</p></div>
+        <nav class="product-pagination" id="administratorPagination" aria-label="Administrator pages"></nav>
+      </div>
+    </section>
+  </main>
+
+  <button class="floating-message-toggle" id="floatingMessageToggle" type="button" aria-label="Open customer messages" aria-expanded="false">
+    <span class="floating-chat-icon" aria-hidden="true"></span><b id="floatingMessageBadge" hidden>0</b>
+  </button>
+  <aside class="floating-message-panel" id="floatingMessagePanel" aria-label="Customer message inbox">
+    <header><div><small>Customer inbox</small><strong id="floatingClientName">Messages</strong></div><button type="button" id="hideFloatingMessages" aria-label="Hide messages">×</button></header>
+    <div class="floating-message-thread" id="floatingMessageThread"><p>Select a customer to view their messages.</p></div>
+    <form class="floating-message-reply" id="floatingMessageReply"><textarea required placeholder="Reply to customer…"></textarea><button type="submit">Send →</button></form>
+  </aside>
+
+  <div class="product-modal" id="productModal" role="dialog" aria-modal="true" aria-labelledby="productModalTitle">
+    <form class="product-form" id="productForm">
+      <div class="product-form-head"><div><p class="eyebrow">Catalog editor</p><h2 id="productModalTitle">Add product</h2></div><button type="button" id="closeProductModal" aria-label="Close product editor">×</button></div>
+      <input type="hidden" name="id">
+      <div class="product-form-grid">
+        <label class="wide product-image-field">Product image<input type="file" name="image" accept="image/png,image/jpeg,image/webp"><span class="product-image-preview" id="productImagePreview"><small>Upload a PNG, JPG, or WebP image up to 5 MB.</small></span><span class="remove-product-image" id="removeProductImageOption" hidden><input type="checkbox" name="remove_image"> Remove current image</span></label>
+        <label class="wide">Product name<input required name="name" placeholder="e.g. Daily Magnesium"></label>
+        <label>Category<input name="category" list="categoryOptions" placeholder="Select or type a new category"><small>Products without a category are saved as Uncategorized.</small><datalist id="categoryOptions"><option value="Weight Management"><option value="Skin & Beauty"><option value="Energy & Vitality"><option value="Protein"><option value="Vitamins"></datalist></label>
+        <label>Price (PHP)<input required name="price" type="number" inputmode="decimal" min="0" step="0.01" placeholder="1490"></label>
+        <label>Stock quantity<input required name="stock" type="number" inputmode="numeric" min="0" step="1" placeholder="20"></label>
+        <label>Batch number<input name="batch" placeholder="MAG-2610"></label>
+        <label>Expiry date<input name="expiry" type="date"></label>
+        <label class="wide">Storefront description<textarea required name="benefit" maxlength="180" placeholder="A short customer-friendly product benefit."></textarea></label>
+        <label class="wide product-active-field"><input type="checkbox" name="isActive" checked><span><b>Display this product in the storefront</b><small>Turn this off to keep it as a hidden draft.</small></span></label>
+      </div>
+      <div class="product-form-actions"><button type="button" class="secondary-action" id="cancelProduct">Cancel</button><button type="submit" class="primary-action">Save product</button></div>
+    </form>
+  </div>
+  <div class="product-modal" id="customerModal" role="dialog" aria-modal="true" aria-labelledby="customerModalTitle">
+    <form class="product-form customer-form" id="customerForm">
+      <div class="product-form-head"><div><p class="eyebrow">Customer account</p><h2 id="customerModalTitle">Add customer</h2><p>Create login credentials the customer can use immediately.</p></div><button type="button" id="closeCustomerModal" aria-label="Close customer editor">×</button></div>
+      <div class="product-form-grid">
+        <label class="wide">Full name<input required name="name" autocomplete="name" placeholder="e.g. Maria Santos"></label>
+        <label>Email address<input required name="email" type="email" autocomplete="email" placeholder="maria@example.com"></label>
+        <label>Mobile number<input required name="phone" autocomplete="tel" placeholder="0917 123 4567"></label>
+        <label class="wide">Address<textarea name="address" autocomplete="street-address" placeholder="Street, barangay, city, postal code"></textarea></label>
+        <label>Password<input required name="password" type="password" autocomplete="new-password" minlength="8" placeholder="Minimum 8 characters"></label>
+        <label>Confirm password<input required name="password_confirmation" type="password" autocomplete="new-password" minlength="8" placeholder="Repeat password"></label>
+        <label class="wide product-active-field"><input type="checkbox" name="marketing_consent"><span><b>Marketing consent provided</b><small>Only enable this when the customer has agreed to receive offers.</small></span></label>
+      </div>
+      <div class="product-form-actions"><button type="button" class="secondary-action" id="cancelCustomer">Cancel</button><button type="submit" class="primary-action">Create customer</button></div>
+    </form>
+  </div>
+  <div class="product-modal" id="administratorModal" role="dialog" aria-modal="true" aria-labelledby="administratorModalTitle">
+    <form class="product-form customer-form" id="administratorForm">
+      <div class="product-form-head"><div><p class="eyebrow">Access control</p><h2 id="administratorModalTitle">Add administrator</h2><p>This account will have full access to the admin dashboard.</p></div><button type="button" id="closeAdministratorModal" aria-label="Close administrator editor">×</button></div>
+      <div class="product-form-grid">
+        <input type="hidden" name="id">
+        <label class="wide">Full name<input required name="name" autocomplete="name" placeholder="e.g. Bea Cruz"></label>
+        <label>Email address<input required name="email" type="email" autocomplete="email" placeholder="bea@youglow.test"></label>
+        <label>Mobile number<input name="phone" autocomplete="tel" placeholder="0917 123 4567"></label>
+        <label><span id="administratorPasswordLabel">Password</span><input required name="password" type="password" autocomplete="new-password" minlength="8" placeholder="Minimum 8 characters"></label>
+        <label><span id="administratorConfirmationLabel">Confirm password</span><input required name="password_confirmation" type="password" autocomplete="new-password" minlength="8" placeholder="Repeat password"></label>
+      </div>
+      <p class="admin-access-warning">Administrator accounts can view customer information and change store data. Only create accounts for authorized staff.</p>
+      <div class="product-form-actions"><button type="button" class="secondary-action" id="cancelAdministrator">Cancel</button><button type="submit" class="primary-action">Create administrator</button></div>
+    </form>
+  </div>
+  <div class="product-modal" id="discountModal" role="dialog" aria-modal="true" aria-labelledby="discountModalTitle">
+    <form class="product-form discount-form" id="discountForm">
+      <div class="product-form-head"><div><p class="eyebrow">Customer offer</p><h2 id="discountModalTitle">Add discount</h2><p>Create an offer and assign it to registered customers.</p></div><button type="button" id="closeDiscountModal" aria-label="Close discount editor">×</button></div>
+      <input type="hidden" name="id">
+      <div class="product-form-grid">
+        <label class="wide">Discount name<input required name="name" maxlength="120" placeholder="e.g. Loyal customer reward"></label>
+        <label>Discount code<input required name="code" maxlength="40" placeholder="e.g. LOYAL10"></label>
+        <label>Discount type<select required name="type"><option value="percentage">Percentage</option><option value="fixed">Fixed amount</option></select></label>
+        <label>Discount value<input required name="value" type="number" inputmode="decimal" min="0.01" step="0.01" placeholder="10"></label>
+        <label>Minimum order value<input name="minimum_order_value" type="number" inputmode="decimal" min="0" step="0.01" value="0"></label>
+        <label>Expiry date<input name="expires_at" type="date"></label>
+        <div class="wide discount-customer-field"><label>Assign to customers</label><details class="discount-customer-select" id="discountCustomerSelect"><summary id="discountCustomerSummary">Select customers</summary><div class="discount-customer-dropdown"><label class="discount-select-all"><input type="checkbox" id="discountSelectAll"><span><b>Select all customers</b><small>Assign this discount to every registered customer</small></span></label><div class="discount-customer-list" id="discountCustomerList"></div></div></details></div>
+        <label class="wide product-active-field"><input type="checkbox" name="is_active" checked><span><b>Discount is active</b><small>Inactive discounts remain saved but cannot be used.</small></span></label>
+      </div>
+      <div class="product-form-actions"><button type="button" class="secondary-action" id="cancelDiscount">Cancel</button><button type="submit" class="primary-action">Save discount</button></div>
+    </form>
+  </div>
+  <div class="toast" id="adminToast" role="status" aria-live="polite"></div>
+  <script>window.YG_PORTAL='admin';</script>
+  <script src="/data.js?v=7"></script>
+  <script src="/admin.js?v=58"></script>
+</body>
+</html>

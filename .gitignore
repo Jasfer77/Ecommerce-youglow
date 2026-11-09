@@ -1,0 +1,13 @@
+.DS_Store
+
+# Local prototype/runtime data
+/storage/*.sqlite3
+/storage/*.sqlite
+/storage/*.db
+
+# Local editor and OS files
+.idea/
+.vscode/
+*.swp
+*.swo
+

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Shop | You Glow Cebu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Mrs+Saint+Delafield&family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="page-transition.css?v=1">
+  <link rel="stylesheet" href="store.css?v=36">
+  <link rel="stylesheet" href="uniform-interface.css?v=7">
+</head>
+<body class="store-page">
+  <header class="site-header store-site-header">
+    <a class="brand header-brand" href="/" aria-label="You Glow Cebu home"><span>You Glow Cebu</span><small>BEAUTY &amp; WELLNESS</small></a>
+    <button class="menu-button" id="shopMenuButton" type="button" aria-label="Open menu" aria-expanded="false"><span></span><span></span></button>
+    <nav aria-label="Main navigation"><a href="/">Home</a><a href="/products" class="active">Our products</a><a href="/#about">About us</a><a href="/#faqs">FAQs</a><a href="/#contact">Contact</a></nav>
+    <div class="landing-header-tools" aria-label="Customer actions"><a class="landing-profile-link" href="/account" id="accountTrigger" aria-label="Customer profile"></a><button class="landing-cart-link" id="cartTrigger" type="button" aria-label="Open shopping cart"><b id="cartCount" hidden></b></button></div>
+  </header>
+  <main>
+    <section class="shop-hero"><p class="script">Thoughtfully curated</p><h1>All products.</h1><p>Discover supportive essentials for energy, beauty, balance, and daily wellbeing.</p></section>
+    <section class="catalog catalog-all-products">
+      <div class="catalog-main"><div class="catalog-toolbar"><p><b id="resultCount">0</b> products</p><select id="sort" aria-label="Sort products"><option value="featured">Featured</option><option value="low">Price: low to high</option><option value="high">Price: high to low</option></select></div><div class="catalog-grid" id="productGrid"></div></div>
+    </section>
+  </main>
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Shopping bag">
+    <div class="drawer-head"><h2>Your bag</h2><button id="closeCart" aria-label="Close cart">×</button></div>
+    <div id="cartItems" class="cart-items"></div>
+    <div class="cart-summary"><div><span>Subtotal</span><strong id="cartSubtotal">₱0</strong></div><small>Shipping is calculated at checkout.</small><button class="button button-dark full" id="checkoutButton">Checkout <span>→</span></button></div>
+  </aside>
+  <div class="checkout-modal" id="checkoutModal">
+    <div class="checkout-panel">
+      <button class="modal-close" id="closeCheckout" aria-label="Close checkout">×</button>
+      <div class="checkout-progress"><span class="active">1 Details</span><span>2 Payment</span><span>3 Review</span></div>
+      <form id="checkoutForm">
+        <section class="checkout-step active" data-step="1">
+          <p class="eyebrow">Secure checkout</p><h2>Where should we send your glow?</h2>
+          <div class="checkout-account-note" id="checkoutAccountNote"><div><b>Returning customer?</b><small>Sign in to use saved details and earn rewards.</small></div><a href="/account">Sign in</a></div>
+          <div class="form-grid">
+            <label>Full name<input required name="name" autocomplete="name" placeholder="Juan dela Cruz"></label><label>Mobile number<input required name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="0917 123 4567"></label>
+            <label class="wide">Email address<input required type="email" name="email" autocomplete="email" inputmode="email" placeholder="you@example.com"></label><label class="wide">Complete delivery address<textarea required name="address" autocomplete="street-address" placeholder="House/unit, street, barangay and city"></textarea></label>
+            <label class="wide">Nearest landmark<input required name="landmark" placeholder="Example: beside the barangay hall or near a known store"></label>
+            <label>Region<select name="region" autocomplete="address-level1"><option>Cebu / Local</option><option>Visayas</option><option>Metro Manila / Luzon</option><option>Mindanao</option></select></label><label>Postal code<input required name="postal" inputmode="numeric" autocomplete="postal-code" placeholder="6000"></label>
+          </div>
+        </section>
+        <section class="checkout-step" data-step="2"><p class="eyebrow">Payment method</p><h2>How would you like to pay?</h2><div class="payment-options" id="paymentOptions"><p>Loading payment methods…</p></div><div class="checkout-payment-details" id="paymentDetails"></div><label class="upload-zone" id="uploadZone"><input type="file" id="receipt" accept="image/jpeg,image/png,image/webp"><span id="uploadPrompt"><b>Add proof of payment</b><small>JPG, PNG, or WebP up to 5 MB</small></span><img id="receiptPreview" alt="Receipt preview"></label></section>
+        <section class="checkout-step" data-step="3"><p class="eyebrow">Final review</p><h2>Almost ready to glow.</h2><div id="orderReview" class="order-review"></div><label class="consent"><input required type="checkbox"> I confirm these details are correct and understand payment is manually verified.</label><label class="consent guest-save" id="guestSave"><input type="checkbox" name="createProfile"> Create my wellness profile after checkout so I can track this order, message the team, and receive valid loyalty offers.</label></section>
+        <div class="checkout-actions"><button type="button" class="button button-outline" id="checkoutBack">Back</button><button type="button" class="button button-dark" id="checkoutNext">Continue <span>→</span></button></div>
+      </form>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+  <script src="page-transition.js?v=4"></script>
+  <script src="data.js?v=8"></script>
+  <script src="store.js?v=31"></script>
+</body>
+</html>

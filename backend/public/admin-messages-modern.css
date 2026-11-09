@@ -1,0 +1,887 @@
+.admin-page .crm-grid{height:min(700px,calc(100dvh - 210px));min-height:570px;grid-template-columns:300px minmax(0,1fr);overflow:hidden;border:1px solid var(--admin-line);border-radius:18px;background:#f4f2ef;box-shadow:0 18px 55px rgba(55,38,28,.08)}
+.admin-page .client-list{position:relative;display:flex;min-width:0;flex-direction:column;padding:12px;border-right:1px solid var(--admin-line);background:#fff;overflow:hidden}
+.admin-page .client-list::before{content:none}
+.admin-page .client-search{display:flex;flex:0 0 auto;height:42px;margin:4px 4px 12px;padding:0 12px;align-items:center;gap:9px;border:1px solid var(--admin-line);border-radius:12px;background:#fff}.admin-page .client-search>span{position:relative;width:16px;height:16px;border:1.5px solid var(--admin-ink);border-radius:50%}.admin-page .client-search>span::after{content:"";position:absolute;right:-4px;bottom:-2px;width:6px;border-top:1.5px solid var(--admin-ink);transform:rotate(45deg)}.admin-page .client-search input{width:100%;min-width:0;border:0!important;outline:0;background:transparent;font-size:12px}.admin-page .client-list-results{min-height:0;overflow:auto}.admin-page .client-search-empty{padding:18px 10px;color:var(--admin-muted);font-size:11px;text-align:center}
+.admin-page .client-card{min-height:68px;margin-bottom:3px;padding:11px 9px;border:0;border-radius:12px;grid-template-columns:38px minmax(0,1fr) auto}.admin-page .client-card.active{background:var(--admin-accent-soft)}.admin-page .client-card>span{background:var(--yg-olive)}.admin-page .client-card strong{font-family:var(--font-body);font-size:13px;font-weight:600}.admin-page .client-card small{font-size:9px}
+.admin-page .client-profile{min-width:0;padding:0;display:flex;flex-direction:column;background:#f4f2ef}.admin-page .client-identity{min-height:76px;padding:13px 20px;border-bottom:1px solid var(--admin-line);background:#fff}.admin-page .client-identity>span{width:40px;height:40px;background:var(--yg-olive)}.admin-page .client-identity h3{font-family:var(--font-body);font-size:15px;font-weight:600}.admin-page .client-identity>b{border-radius:999px;background:var(--admin-accent-soft);color:var(--admin-accent)}.admin-page .client-stats,.admin-page .profile-tabs{display:none}
+.admin-page .admin-conversation{position:relative;flex:1;height:auto;min-height:0;padding:50px 25px 24px;gap:14px;border:0;border-radius:0;background:#f4f2ef}.admin-page .admin-conversation::before{content:"Today";position:absolute;top:16px;left:50%;padding:5px 10px;border-radius:8px;background:#fff;color:var(--admin-muted);font-size:8px;transform:translateX(-50%)}
+.admin-page .admin-bubble{position:relative;width:max-content;max-width:min(68%,560px);padding:13px 16px;border:0;border-radius:14px 14px 14px 4px;background:#fff;color:var(--admin-ink);font-size:12px;box-shadow:0 3px 12px rgba(58,42,33,.04)}.admin-page .admin-bubble.support{align-self:flex-end;border-radius:14px 14px 4px 14px;background:var(--yg-olive);color:#fff}.admin-page .admin-bubble .message-author{display:block;margin-bottom:4px;color:var(--admin-accent);font-size:10px}.admin-page .admin-bubble.support .message-author{color:#f3dcb4}.admin-page .admin-bubble small{font-size:8px}
+.admin-page .admin-reply{min-height:60px;margin:12px 20px 5px;border:1px solid var(--admin-line);border-radius:13px;background:#fff}.admin-page .admin-reply textarea{height:58px;padding:17px}.admin-page .admin-reply button{margin:7px;min-width:104px;border-radius:10px;background:var(--yg-olive)}.admin-page .internal-warning{margin:0;padding:0 22px 13px;color:var(--admin-muted);font-size:8px}
+@media(max-width:760px){.admin-page .crm-grid{height:calc(100dvh - 190px);min-height:500px;grid-template-columns:1fr}.admin-page .client-list{max-height:210px;padding:9px;display:flex;gap:0;overflow:hidden}.admin-page .client-search{margin:0 0 8px}.admin-page .client-list-results{display:flex;gap:8px;overflow-x:auto}.admin-page .client-card{min-width:210px}.admin-page .client-profile{min-height:0}.admin-page .client-identity{min-height:64px;padding:10px 13px}.admin-page .admin-conversation{padding:45px 12px 16px}.admin-page .admin-bubble{max-width:88%}.admin-page .admin-reply{margin:8px 10px 4px}.admin-page .internal-warning{padding:0 12px 9px}}
+/* Shared admin module-title scale. These rules load last so every module agrees. */
+.admin-page .crm-heading h2,
+.admin-page .manager-heading h2,
+.admin-page .admin-users-heading h2 {
+  margin: 5px 0 0;
+  font-size: clamp(30px, 3vw, 38px);
+  line-height: 1.08;
+  letter-spacing: -.025em;
+}
+
+.admin-page .panel-head h2 {
+  margin: 3px 0 0;
+  font-size: 27px;
+  line-height: 1.15;
+  letter-spacing: -.018em;
+}
+
+@media (max-width: 700px) {
+  .admin-page .crm-heading h2,
+  .admin-page .manager-heading h2,
+  .admin-page .admin-users-heading h2 {
+    font-size: 29px;
+  }
+
+  .admin-page .panel-head h2 {
+    font-size: 24px;
+  }
+}
+
+.admin-page .admin-verified-address {
+  margin-top: 10px;
+  padding: 11px 12px;
+  border: 1px solid var(--admin-line);
+  border-radius: 11px;
+  background: #fff;
+}
+
+.admin-page .admin-verified-address > b {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--admin-accent);
+  font-size: 9px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.admin-page .admin-verified-address p {
+  margin: 3px 0;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.admin-page .admin-verified-address small {
+  color: var(--admin-muted);
+  font-size: 8px;
+}
+
+/* Keep the composer fixed while the complete message history scrolls. */
+.admin-page .client-profile {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.admin-page .client-identity,
+.admin-page .admin-reply,
+.admin-page .internal-warning {
+  flex: 0 0 auto;
+}
+
+.admin-page .admin-conversation {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 0;
+  padding-bottom: 42px;
+  overflow-x: hidden;
+  overflow-y: auto!important;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #b9a99d transparent;
+}
+
+.admin-page .admin-conversation::-webkit-scrollbar {
+  width: 8px;
+}
+
+.admin-page .admin-conversation::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: #b9a99d;
+  background-clip: padding-box;
+}
+
+.admin-page .admin-conversation > :last-child {
+  margin-bottom: 12px!important;
+}
+
+@media (max-width: 760px) {
+  .admin-page .client-profile {
+    height: auto;
+    min-height: 0;
+  }
+
+  .admin-page .admin-conversation {
+    height: 0;
+    padding-bottom: 34px;
+  }
+}
+
+/* Order events live inside the admin conversation timeline. */
+.admin-page .completed-transaction-event,
+.admin-page .active-transaction-event {
+  width: min(560px, 86%)!important;
+  max-width: min(560px, 86%)!important;
+}
+
+.admin-page .completed-transaction-event {
+  align-self: flex-start!important;
+  border: 1px solid var(--admin-line)!important;
+  background: #f5ede5!important;
+  color: var(--admin-ink)!important;
+}
+
+.admin-page .completed-transaction-event header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 3px 12px;
+  align-items: center;
+  margin-bottom: 9px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--admin-line);
+}
+
+.admin-page .completed-transaction-event header span {
+  color: var(--admin-accent);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.admin-page .completed-transaction-event header strong {
+  grid-column: 1;
+  font-family: var(--font-display);
+}
+
+.admin-page .completed-transaction-event header small {
+  grid-column: 2;
+  grid-row: 1 / 3;
+}
+
+.admin-page .admin-timeline-items {
+  margin-top: 9px;
+  border-top: 1px solid var(--admin-line);
+}
+
+.admin-page .admin-timeline-items > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--admin-line);
+  font-size: 10px;
+}
+
+.admin-page .completed-transaction-event > p {
+  margin: 10px 0 0;
+  color: #52634c!important;
+  font-weight: 600;
+}
+
+@media (max-width: 620px) {
+  .admin-page .completed-transaction-event,
+  .admin-page .active-transaction-event {
+    width: 96%!important;
+    max-width: 96%!important;
+  }
+}
+
+/* Home-page palette and lotus identity shared with the admin portal. */
+.admin-page{
+  --admin-bg:#f8f1e8;
+  --admin-surface:#fffdf9;
+  --admin-ink:#38271f;
+  --admin-muted:#6f5c53;
+  --admin-accent:#80513a;
+  --admin-accent-soft:#f1dfd6;
+  --admin-line:rgba(67,42,29,.16);
+  --admin-shadow:0 14px 45px rgba(76,47,31,.07);
+  --yg-olive:#3f4030;
+  background:var(--admin-bg);
+  color:var(--admin-ink);
+}
+.admin-page .admin-nav{background:var(--yg-olive)}
+.admin-page .admin-main,.admin-page .admin-conversation,.admin-page .client-profile{background:var(--admin-bg)}
+.admin-page .panel,.admin-page .product-manager,.admin-page .crm-grid,.admin-page .client-list,.admin-page .client-identity,.admin-page .admin-reply,.admin-page .payment-setting-card{background:var(--admin-surface)}
+.admin-page .admin-links button.active{background:rgba(241,223,214,.14);color:#f8ecdd}
+.admin-page .admin-links button:hover{background:rgba(241,223,214,.08);color:#f8ecdd}
+.admin-page .admin-links button b{background:#ae834b}
+.admin-page .eyebrow{color:var(--admin-accent)}
+.admin-page .primary-action,.admin-page .admin-reply button,.admin-page #floatingMessageReply button{background:var(--yg-olive);color:#fffdf9}
+.admin-page .portal-brand{margin:0 auto 45px;color:#f8ecdd}
+.admin-page .portal-brand::before{content:"";width:38px;height:27px;margin-bottom:5px;background:#ae834b;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 46' fill='none' stroke='black' stroke-width='2.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M32 40C17 35 10 25 9 14c11 1 20 7 23 18'/%3E%3Cpath d='M32 40c15-5 22-15 23-26-11 1-20 7-23 18'/%3E%3Cpath d='M32 40C21 30 21 16 32 5c11 11 11 25 0 35Z'/%3E%3Cpath d='M12 31c-4 1-7 3-9 6 12 7 22 7 29 3M52 31c4 1 7 3 9 6-12 7-22 7-29 3'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 46' fill='none' stroke='black' stroke-width='2.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M32 40C17 35 10 25 9 14c11 1 20 7 23 18'/%3E%3Cpath d='M32 40c15-5 22-15 23-26-11 1-20 7-23 18'/%3E%3Cpath d='M32 40C21 30 21 16 32 5c11 11 11 25 0 35Z'/%3E%3Cpath d='M12 31c-4 1-7 3-9 6 12 7 22 7 29 3M52 31c4 1 7 3 9 6-12 7-22 7-29 3'/%3E%3C/svg%3E") center/contain no-repeat}
+.admin-page .portal-brand span{font:400 20px/1.1 var(--font-display);white-space:nowrap}.admin-page .portal-brand small{margin-top:4px;color:#e2bd7d;font:600 6px/1 var(--font-body);letter-spacing:.24em;text-transform:uppercase}
+@media(max-width:1000px){.admin-page .portal-brand span,.admin-page .portal-brand small{display:none}.admin-page .portal-brand{margin-bottom:30px}.admin-page .portal-brand::before{width:34px;height:25px}}
+@media(max-width:620px){.admin-page .portal-brand{display:none}}
+
+/* Compact paper-plane buttons for the main and floating admin composers. */
+.admin-page #adminReply button,
+.admin-page #floatingMessageReply button {
+  flex: 0 0 44px;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  padding: 0!important;
+  display: grid;
+  place-items: center;
+  align-self: center;
+  border-radius: 50%!important;
+  font-size: 0!important;
+}
+
+.admin-page #adminReply button::before,
+.admin-page #floatingMessageReply button::before {
+  content: "";
+  width: 18px;
+  height: 18px;
+  display: block;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M21.4 2.6a1 1 0 0 0-1.05-.23L3.2 9.2a1 1 0 0 0 .08 1.89l7.12 2.37 2.37 7.12a1 1 0 0 0 .9.68h.05a1 1 0 0 0 .92-.62L21.63 3.65a1 1 0 0 0-.23-1.05ZM12 12.59 6.5 10.76l11.1-4.42L12 12.59Zm1.24 4.91-1.1-3.3 5.52-5.52-4.42 8.82Z'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M21.4 2.6a1 1 0 0 0-1.05-.23L3.2 9.2a1 1 0 0 0 .08 1.89l7.12 2.37 2.37 7.12a1 1 0 0 0 .9.68h.05a1 1 0 0 0 .92-.62L21.63 3.65a1 1 0 0 0-.23-1.05ZM12 12.59 6.5 10.76l11.1-4.42L12 12.59Zm1.24 4.91-1.1-3.3 5.52-5.52-4.42 8.82Z'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+
+/* Unified phone typography across every admin module. */
+@media (max-width: 620px) {
+  .admin-page .admin-header h1 {
+    font-size: 28px;
+    line-height: 1.08;
+  }
+
+  .admin-page .crm-heading h2,
+  .admin-page .manager-heading h2,
+  .admin-page .admin-users-heading h2 {
+    font-size: 28px;
+    line-height: 1.08;
+  }
+
+  .admin-page .panel-head h2,
+  .admin-page .product-form-head h2 {
+    font-size: 22px;
+    line-height: 1.12;
+  }
+
+  .admin-page .eyebrow { font-size: 9px; }
+  .admin-page .metric-grid strong { font-size: 25px; }
+  .admin-page .promo-panel h2 { font-size: 36px; }
+  .admin-page .admin-message-transaction header strong { font-size: 16px; }
+}
+
+.admin-page .receipt-review-modal img {
+  min-height: 180px;
+  max-height: 52dvh;
+  object-fit: contain;
+}
+
+.admin-page .receipt-image-status {
+  margin: 9px 0;
+  color: var(--admin-muted);
+  font-size: 10px;
+  text-align: center;
+}
+
+.admin-page .receipt-image-status:empty {
+  display: none;
+}
+
+.admin-page .receipt-image-status.error {
+  padding: 12px;
+  border-radius: 9px;
+  background: #f6e6e1;
+  color: #7d4037;
+}
+
+/* Admin-wide readability scale aligned with the customer account. */
+.admin-page {
+  --admin-muted: #5f5149;
+  font-size: 15px;
+}
+
+.admin-page .admin-nav,
+.admin-page .admin-main {
+  color: var(--admin-ink);
+}
+
+.admin-page .admin-links button,
+.admin-page .admin-nav-footer a,
+.admin-page .admin-nav-footer button {
+  font-size: 12px!important;
+  font-weight: 500!important;
+}
+
+.admin-page .admin-links button {
+  color: #d8cec5!important;
+}
+
+.admin-page .admin-links button span:last-of-type {
+  font-size: inherit!important;
+}
+
+.admin-page .admin-links button.active {
+  color: #ffe2b5!important;
+}
+
+.admin-page .admin-header p,
+.admin-page .admin-header small,
+.admin-page .crm-heading > p,
+.admin-page .manager-heading p,
+.admin-page .panel-head p,
+.admin-page .admin-users-heading p {
+  color: var(--admin-muted)!important;
+  font-size: 12px!important;
+  line-height: 1.55;
+}
+
+.admin-page .eyebrow,
+.admin-page label,
+.admin-page th,
+.admin-page .metric-grid span,
+.admin-page .manager-stats span {
+  color: #65483a!important;
+  font-size: 10px!important;
+  font-weight: 700!important;
+}
+
+.admin-page p,
+.admin-page td,
+.admin-page .stock-row p,
+.admin-page .expiry-row p,
+.admin-page .product-admin-card p,
+.admin-page .inventory-row,
+.admin-page .customer-directory-row {
+  color: #4f433d;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.admin-page small,
+.admin-page time,
+.admin-page .internal-warning,
+.admin-page .client-card small {
+  color: var(--admin-muted)!important;
+  font-size: 10px!important;
+  line-height: 1.45;
+}
+
+.admin-page input,
+.admin-page select,
+.admin-page textarea,
+.admin-page button {
+  font-size: 13px;
+}
+
+.admin-page input::placeholder,
+.admin-page textarea::placeholder {
+  color: #6f6159!important;
+  opacity: 1!important;
+}
+
+.admin-page .status,
+.admin-page .stock-pill,
+.admin-page .client-card b,
+.admin-page .admin-bubble small,
+.admin-page .chat-transaction-head small {
+  font-size: 9px!important;
+  font-weight: 600;
+}
+
+.admin-page .admin-bubble,
+.admin-page .floating-bubble {
+  font-size: 13px!important;
+  line-height: 1.55;
+}
+
+.admin-page .message-author,
+.admin-page .client-card strong,
+.admin-page .customer-directory-row strong {
+  font-size: 13px!important;
+  font-weight: 600!important;
+}
+
+.admin-page .primary-action,
+.admin-page .secondary-action,
+.admin-page .order-action,
+.admin-page [type="submit"] {
+  font-size: 11px!important;
+  font-weight: 600!important;
+}
+
+@media (max-width: 760px) {
+  .admin-page .admin-links button {
+    font-size: 10px!important;
+  }
+
+  .admin-page p,
+  .admin-page td,
+  .admin-page input,
+  .admin-page select,
+  .admin-page textarea {
+    font-size: 14px;
+  }
+}
+
+/* The inbox already has its own heading; remove the duplicate page header. */
+.admin-page.messages-module-open .admin-header {
+  display: none;
+}
+
+.admin-page.messages-module-open .crm-workspace {
+  margin-top: 0;
+}
+
+.admin-page.messages-module-open .crm-heading {
+  margin-bottom: 14px;
+}
+
+.admin-page.messages-module-open .crm-grid {
+  height: calc(100dvh - 145px);
+  min-height: 620px;
+  max-height: 840px;
+}
+
+@media (max-width: 760px) {
+  .admin-page.messages-module-open .admin-main {
+    padding-top: 16px;
+  }
+
+  .admin-page.messages-module-open .crm-heading {
+    margin-bottom: 10px;
+  }
+
+  .admin-page.messages-module-open .crm-heading > p {
+    display: none;
+  }
+
+  .admin-page.messages-module-open .crm-grid {
+    height: calc(100dvh - 130px);
+    min-height: 520px;
+    max-height: none;
+  }
+}
+
+/* Mobile Messenger flow: customer list first, one conversation after selection. */
+.admin-page .mobile-chat-back {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .admin-page .crm-grid {
+    display: block;
+    height: calc(100dvh - 190px);
+    min-height: 500px;
+  }
+
+  .admin-page .client-list {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    padding: 0 12px 18px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border-right: 0;
+  }
+
+  .admin-page .client-list::before {
+    content: "Customer messages";
+    position: sticky;
+    z-index: 2;
+    top: 0;
+    left: auto;
+    right: auto;
+    height: auto;
+    margin: 0 -12px 10px;
+    padding: 18px 16px 14px;
+    display: flex;
+    align-items: center;
+    border: 0;
+    border-bottom: 1px solid var(--admin-line);
+    border-radius: 0;
+    background: rgba(255,255,255,.96);
+    color: var(--admin-ink);
+    font-family: var(--font-display);
+    font-size: 23px;
+    letter-spacing: 0;
+    backdrop-filter: blur(12px);
+  }
+
+  .admin-page .client-card {
+    width: 100%;
+    min-width: 0;
+    min-height: 76px;
+    margin: 0 0 6px;
+    padding: 13px 12px;
+    grid-template-columns: 44px minmax(0,1fr) auto;
+    border-bottom: 1px solid var(--admin-line);
+    border-radius: 12px;
+  }
+
+  .admin-page .client-card > span {
+    width: 44px;
+    height: 44px;
+  }
+
+  .admin-page .client-card strong {
+    font-size: 14px;
+  }
+
+  .admin-page .client-card small {
+    margin-top: 3px;
+    font-size: 10px;
+  }
+
+  .admin-page .client-profile {
+    display: none;
+    height: 100%;
+  }
+
+  .admin-page .crm-grid.mobile-chat-open .client-list {
+    display: none;
+  }
+
+  .admin-page .crm-grid.mobile-chat-open .client-profile {
+    display: flex;
+  }
+
+  .admin-page .client-identity {
+    position: relative;
+    padding-left: 58px;
+  }
+
+  .admin-page .mobile-chat-back {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--admin-line);
+    border-radius: 50%;
+    background: #fff;
+    color: var(--admin-ink);
+    font-size: 20px;
+    transform: translateY(-50%);
+  }
+
+  .admin-page .client-identity > span {
+    width: 38px;
+    min-width: 38px;
+    height: 38px;
+  }
+
+  .admin-page .client-identity h3 {
+    font-size: 14px;
+  }
+
+  .admin-page .client-identity p {
+    max-width: 180px;
+    overflow: hidden;
+    font-size: 9px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 620px) {
+  .admin-page .admin-header h1{font-size:28px;line-height:1.08}
+  .admin-page .crm-heading h2,.admin-page .manager-heading h2,.admin-page .admin-users-heading h2{font-size:28px;line-height:1.08}
+  .admin-page .panel-head h2,.admin-page .product-form-head h2{font-size:22px;line-height:1.12}
+  .admin-page .eyebrow{font-size:9px}
+  .admin-page .metric-grid strong{font-size:25px}
+  .admin-page .promo-panel h2{font-size:36px}
+}
+
+/* Final home-theme cascade. */
+.admin-page{--admin-bg:#f8f1e8;--admin-surface:#fffdf9;--admin-ink:#38271f;--admin-muted:#6f5c53;--admin-accent:#80513a;--admin-accent-soft:#f1dfd6;--admin-line:rgba(67,42,29,.16);--yg-olive:#3f4030;background:var(--admin-bg);color:var(--admin-ink)}
+.admin-page .admin-nav{background:var(--yg-olive)}
+.admin-page .admin-main,.admin-page .admin-conversation,.admin-page .client-profile{background:var(--admin-bg)}
+.admin-page .panel,.admin-page .product-manager,.admin-page .crm-grid,.admin-page .client-list,.admin-page .client-identity,.admin-page .admin-reply{background:var(--admin-surface)}
+
+/* Side navigation now continues the same light home-page canvas. */
+.admin-page .admin-nav{
+  background:var(--admin-surface);
+  color:var(--admin-ink);
+  border-right:1px solid var(--admin-line);
+  box-shadow:none;
+}
+.admin-page .admin-links button{color:var(--admin-muted)}
+.admin-page .admin-links button:hover{background:rgba(241,223,214,.55);color:var(--admin-ink)}
+.admin-page .admin-links button.active{background:var(--admin-accent-soft);color:var(--admin-ink)}
+.admin-page .admin-nav-footer{border-color:var(--admin-line)}
+.admin-page .admin-nav-footer a,.admin-page .admin-nav-footer button{color:var(--admin-muted)}
+.admin-page .portal-brand{color:var(--admin-ink)}
+.admin-page .portal-brand small{color:var(--admin-accent)}
+@media(max-width:620px){
+  .admin-page .admin-nav{background:var(--admin-surface);border:1px solid var(--admin-line);box-shadow:0 12px 35px rgba(76,47,31,.12)}
+  .admin-page .admin-links button.active{background:var(--admin-accent-soft);color:var(--admin-ink)}
+  .admin-page .admin-links button::before{color:var(--admin-accent)}
+  .admin-page .admin-links button b{border-color:var(--admin-surface)}
+}
+
+/* Override every legacy dark admin navigation state. */
+.admin-page .admin-nav{
+  background:var(--admin-surface)!important;
+  color:var(--admin-ink)!important;
+  border-color:var(--admin-line)!important;
+  box-shadow:0 14px 40px rgba(76,47,31,.09)!important;
+}
+.admin-page .admin-links button{color:var(--admin-muted)!important}
+.admin-page .admin-links button.active{background:var(--admin-accent-soft)!important;color:var(--admin-ink)!important;box-shadow:none!important}
+.admin-page .admin-links button:hover{background:rgba(241,223,214,.55)!important;color:var(--admin-ink)!important}
+.admin-page .sidebar-toggle{border-color:var(--admin-line)!important;background:var(--admin-accent-soft)!important;color:var(--admin-accent)!important}
+@media(max-width:620px){.admin-page .admin-nav{box-shadow:0 12px 35px rgba(76,47,31,.12)!important}}
+
+/* Admin wordmark mirrors the public home-page logo. */
+.admin-page .admin-nav>.portal-brand{
+  width:100%;
+  min-height:92px;
+  margin:0 0 28px;
+  padding:4px 8px 18px;
+  display:flex;
+  flex-direction:column;
+  flex:0 0 auto;
+  align-items:center;
+  justify-content:center;
+  border-bottom:1px solid var(--admin-line);
+  color:var(--admin-ink);
+  line-height:1;
+  text-align:center;
+}
+.admin-page .admin-nav>.portal-brand::before{
+  width:36px;
+  height:25px;
+  margin:0 0 6px;
+  background:#ae834b;
+}
+.admin-page .admin-nav>.portal-brand span{
+  display:block;
+  color:var(--admin-ink);
+  font:400 20px/1.1 var(--font-display);
+  letter-spacing:-.025em;
+  white-space:nowrap;
+}
+.admin-page .admin-nav>.portal-brand small{
+  display:block;
+  margin-top:6px;
+  color:var(--admin-accent);
+  font:700 6px/1 var(--font-body);
+  letter-spacing:.28em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.admin-page .admin-nav>.portal-brand:hover{color:var(--admin-ink);transform:none}
+@media(max-width:1000px) and (min-width:621px){
+  .admin-page .admin-nav>.portal-brand{min-height:68px;margin-bottom:22px;padding:2px 0 14px}
+  .admin-page .admin-nav>.portal-brand::before{width:34px;height:24px;margin:0}
+  .admin-page .admin-nav>.portal-brand span,.admin-page .admin-nav>.portal-brand small{display:none}
+}
+@media(max-width:620px){.admin-page .admin-nav>.portal-brand{display:none}}
+
+/* Clearer message typography without enlarging the overall layout. */
+.admin-page [data-admin-module="messages"],
+.admin-page .floating-message-panel{
+  --message-text:#3f332d;
+  --message-muted:#62544c;
+}
+.admin-page [data-admin-module="messages"] .crm-heading>p,
+.admin-page [data-admin-module="messages"] .client-identity p,
+.admin-page [data-admin-module="messages"] .client-card small,
+.admin-page .floating-message-panel small{
+  color:var(--message-muted)!important;
+  font-size:11px!important;
+  font-weight:500;
+  line-height:1.45;
+}
+.admin-page [data-admin-module="messages"] .client-card strong,
+.admin-page [data-admin-module="messages"] .client-identity h3{
+  color:var(--message-text)!important;
+  font-size:14px!important;
+  font-weight:700!important;
+}
+.admin-page [data-admin-module="messages"] .admin-bubble,
+.admin-page .floating-message-panel .floating-bubble{
+  color:var(--message-text)!important;
+  font-size:13px!important;
+  font-weight:500;
+  line-height:1.6;
+}
+.admin-page [data-admin-module="messages"] .admin-bubble.support{color:#fffdf9!important}
+.admin-page [data-admin-module="messages"] .message-author{
+  font-size:11px!important;
+  font-weight:700!important;
+}
+.admin-page [data-admin-module="messages"] .admin-bubble small,
+.admin-page [data-admin-module="messages"] .chat-transaction-head small,
+.admin-page [data-admin-module="messages"] .completed-transaction-event header small{
+  color:var(--message-muted)!important;
+  font-size:10px!important;
+  font-weight:600!important;
+  opacity:1!important;
+}
+.admin-page [data-admin-module="messages"] .admin-bubble.support small{color:#eadfd5!important}
+.admin-page [data-admin-module="messages"] .admin-transaction-chat p,
+.admin-page [data-admin-module="messages"] .admin-transaction-chat label,
+.admin-page [data-admin-module="messages"] .admin-verified-address,
+.admin-page [data-admin-module="messages"] .transaction-total-summary span,
+.admin-page [data-admin-module="messages"] .transaction-total-summary small{
+  color:var(--message-muted)!important;
+  font-size:11px!important;
+  font-weight:500;
+  line-height:1.5;
+}
+.admin-page [data-admin-module="messages"] .admin-transaction-chat header strong,
+.admin-page [data-admin-module="messages"] .transaction-total-summary strong{color:var(--message-text)!important}
+.admin-page [data-admin-module="messages"] .admin-reply textarea,
+.admin-page .floating-message-panel textarea{color:var(--message-text)!important;font-size:14px!important}
+.admin-page [data-admin-module="messages"] .admin-reply textarea::placeholder,
+.admin-page .floating-message-panel textarea::placeholder{color:#75665e!important}
+.admin-page [data-admin-module="messages"] .internal-warning{color:var(--message-muted)!important;font-size:10px!important;font-weight:500}
+
+/* Completed-order total: keep the label, amount, and delivery state distinct. */
+.admin-page .completed-transaction-event .transaction-total-summary{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  align-items:center!important;
+  gap:5px 14px!important;
+}
+.admin-page .completed-transaction-event .transaction-total-summary>span{
+  margin:0!important;
+  white-space:nowrap;
+}
+.admin-page .completed-transaction-event .transaction-total-summary>strong{
+  margin:0!important;
+  color:var(--message-text,#3f332d)!important;
+  font-size:19px!important;
+  line-height:1.1;
+  text-align:right;
+  white-space:nowrap;
+}
+.admin-page .completed-transaction-event .transaction-total-summary>small{
+  grid-column:1/-1;
+  width:auto!important;
+  margin:0!important;
+  padding-top:5px;
+  border-top:1px solid var(--admin-line);
+  color:var(--message-muted,#62544c)!important;
+  line-height:1.4;
+}
+
+/* Module cards already contain their titles; keep only global admin controls above. */
+.admin-page .admin-header{
+  min-height:46px;
+  margin-bottom:18px;
+  justify-content:flex-end;
+}
+.admin-page .admin-header>.admin-heading-copy{display:block!important}
+.admin-page .admin-header .admin-heading-copy h1{margin:0 0 5px;font-family:var(--font-body);font-size:18px;line-height:1.2;font-weight:700}
+@media(max-width:620px){.admin-page .admin-header .admin-heading-copy h1{font-size:16px}}
+.admin-page .admin-header .admin-actions{margin-left:auto}
+@media(max-width:620px){
+  .admin-page .admin-header{min-height:42px;margin-bottom:12px}
+}
+
+/* System-wide admin readability: keep secondary text visible at every size. */
+.admin-page{--admin-muted:#5f5048;--message-muted:#5b4b43;color:#38271f}
+.admin-page .admin-main p,
+.admin-page .admin-main small,
+.admin-page .admin-main td,
+.admin-page .admin-main label,
+.admin-page .admin-main .status{opacity:1}
+.admin-page .admin-main p,
+.admin-page .admin-main td{color:#51433c}
+.admin-page .admin-main small{color:#5f5048;font-size:max(10px,.68rem);font-weight:500;line-height:1.45}
+.admin-page .admin-main label{color:#4f3f37;font-size:max(10px,.68rem);font-weight:600}
+.admin-page .admin-main th,
+.admin-page .admin-main .eyebrow{color:#684633!important;font-size:max(10px,.65rem);font-weight:700!important}
+.admin-page .admin-main input,
+.admin-page .admin-main select,
+.admin-page .admin-main textarea{color:#38271f;font-size:13px}
+.admin-page .admin-main input::placeholder,
+.admin-page .admin-main textarea::placeholder{color:#716159!important;opacity:1!important}
+.admin-page [data-admin-module="messages"] .admin-transaction-chat,
+.admin-page [data-admin-module="messages"] .admin-message-transaction{color:#38271f!important}
+.admin-page [data-admin-module="messages"] .admin-transaction-chat header span,
+.admin-page [data-admin-module="messages"] .admin-message-transaction header span{color:#754a34!important;font-size:10px!important;font-weight:700!important}
+.admin-page [data-admin-module="messages"] .admin-transaction-chat header small,
+.admin-page [data-admin-module="messages"] .admin-message-transaction header small{color:#58483f!important;font-size:10px!important;font-weight:700!important;opacity:1!important}
+.admin-page [data-admin-module="messages"] .transaction-total-summary span,
+.admin-page [data-admin-module="messages"] .transaction-total-summary small{color:#58483f!important;font-size:10px!important;font-weight:600!important;opacity:1!important}
+.admin-page [data-admin-module="messages"] .transaction-total-summary strong{color:#38271f!important;font-size:20px!important}
+.admin-page [data-admin-module="messages"] .admin-verified-address>b{color:#754a34!important;font-size:10px!important;font-weight:700!important}
+.admin-page [data-admin-module="messages"] .admin-verified-address p,
+.admin-page [data-admin-module="messages"] .admin-verified-address small{color:#51433c!important;font-size:11px!important;font-weight:500!important;opacity:1!important}
+.admin-page [data-admin-module="messages"] .admin-verified-address p strong{color:#38271f!important;font-weight:700}
+.admin-page [data-admin-module="messages"] .admin-transaction-chat>div>p{color:#493a33!important;font-size:12px!important;line-height:1.5!important;font-weight:500!important}
+.admin-page .metric-grid .alert-metric p,
+.admin-page .metric-grid .alert-metric small,
+.admin-page .admin-bubble.support,
+.admin-page .admin-bubble.support small{color:#fffaf4!important}
+.admin-page .admin-nav small,
+.admin-page .admin-nav button,
+.admin-page .admin-nav a{opacity:1}
+
+/* Present transaction amounts as explicit, high-contrast fields. */
+.admin-page [data-admin-module="messages"] .transaction-total-summary{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:0!important;padding:0!important;overflow:hidden;border:1px solid var(--admin-line)!important;border-radius:11px!important;background:#fff!important}
+.admin-page [data-admin-module="messages"] .transaction-amount{min-width:0;padding:10px 12px;display:flex;flex-direction:column;gap:4px;border-left:1px solid var(--admin-line)}
+.admin-page [data-admin-module="messages"] .transaction-amount:first-child{border-left:0}
+.admin-page [data-admin-module="messages"] .transaction-amount span{color:#674c3e!important;font-size:9px!important;font-weight:700!important;letter-spacing:.06em;text-transform:uppercase}
+.admin-page [data-admin-module="messages"] .transaction-amount strong{color:#38271f!important;font-family:var(--font-display);font-size:18px!important;line-height:1.15;white-space:nowrap}
+.admin-page [data-admin-module="messages"] .transaction-amount.final-amount{background:#fbf3ea}
+.admin-page [data-admin-module="messages"] .admin-verified-address .address-region{margin-top:7px;padding-top:7px;border-top:1px solid var(--admin-line);color:#51433c!important}
+.admin-page [data-admin-module="messages"] .admin-verified-address .address-region span{margin:0 5px;color:#9a7865}
+@media(max-width:620px){.admin-page [data-admin-module="messages"] .transaction-total-summary{grid-template-columns:1fr!important}.admin-page [data-admin-module="messages"] .transaction-amount{border-left:0;border-top:1px solid var(--admin-line)}.admin-page [data-admin-module="messages"] .transaction-amount:first-child{border-top:0}}
+
+/* Compact itemized order contents inside admin message transactions. */
+.admin-page [data-admin-module="messages"] .admin-order-details{margin:0 0 9px;overflow:hidden;border:1px solid var(--admin-line);border-radius:11px;background:#fff}
+.admin-page [data-admin-module="messages"] .admin-order-details>header{display:flex;align-items:center;justify-content:space-between;margin:0!important;padding:8px 11px!important;border-bottom:1px solid var(--admin-line)!important;background:#fbf6f0;color:#38271f!important}
+.admin-page [data-admin-module="messages"] .admin-order-details>header span{color:#684633!important;font-size:10px!important;font-weight:700!important;letter-spacing:.06em;text-transform:uppercase}
+.admin-page [data-admin-module="messages"] .admin-order-details>header small{color:#5f5048!important;font-size:10px!important;font-weight:600!important}
+.admin-page [data-admin-module="messages"] .admin-order-item{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:8px 14px;padding:9px 11px;border-bottom:1px solid var(--admin-line);color:#38271f}
+.admin-page [data-admin-module="messages"] .admin-order-item:last-of-type{border-bottom:0}
+.admin-page [data-admin-module="messages"] .admin-order-item strong{min-width:0;color:#38271f!important;font-size:11px!important;font-weight:700!important;overflow-wrap:anywhere}
+.admin-page [data-admin-module="messages"] .admin-order-item span{color:#5b4b43!important;font-size:10px!important;font-weight:500!important;white-space:nowrap}
+.admin-page [data-admin-module="messages"] .admin-order-item b{color:#38271f!important;font-size:11px!important;font-weight:700!important;white-space:nowrap}
+.admin-page [data-admin-module="messages"] .admin-order-discount{display:flex;align-items:center;justify-content:space-between;padding:8px 11px;border-top:1px solid var(--admin-line);background:#f2f7ef;color:#496142}
+.admin-page [data-admin-module="messages"] .admin-order-discount span,.admin-page [data-admin-module="messages"] .admin-order-discount strong{color:inherit!important;font-size:10px!important;font-weight:700!important}
+.admin-page [data-admin-module="messages"] .completed-total-summary{grid-template-columns:1fr!important}
+@media(max-width:620px){.admin-page [data-admin-module="messages"] .admin-order-item{grid-template-columns:1fr auto}.admin-page [data-admin-module="messages"] .admin-order-item span{grid-column:1}.admin-page [data-admin-module="messages"] .admin-order-item b{grid-column:2;grid-row:1/3}}
+
+/* Expandable itemized details in the admin Orders module. */
+.admin-page .admin-view-order{display:block;margin-top:6px;padding:0;border:0;background:transparent;color:var(--admin-accent);font-size:10px;font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.admin-page .admin-order-module-detail[hidden]{display:none}
+.admin-page .admin-order-module-detail>td{padding:0!important;background:#fbf7f2!important}
+.admin-page .admin-order-module-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(260px,.75fr);gap:16px;padding:16px 20px;border-bottom:1px solid var(--admin-line)}
+.admin-page .admin-order-module-grid .admin-order-details{margin:0;overflow:hidden;border:1px solid var(--admin-line);border-radius:11px;background:#fff}
+.admin-page .admin-order-module-grid .admin-order-details>header{display:flex;justify-content:space-between;padding:9px 11px;border-bottom:1px solid var(--admin-line);background:#f8efe6}
+.admin-page .admin-order-module-grid .admin-order-item{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px;padding:9px 11px;border-bottom:1px solid var(--admin-line)}
+.admin-page .admin-order-module-grid .admin-order-item span,.admin-page .admin-order-module-grid .admin-order-item b{white-space:nowrap}
+.admin-page .admin-order-module-grid dl{margin:0;padding:10px 13px;border:1px solid var(--admin-line);border-radius:11px;background:#fff}
+.admin-page .admin-order-module-grid dl>div{display:flex;justify-content:space-between;gap:20px;padding:7px 0;border-bottom:1px solid var(--admin-line)}
+.admin-page .admin-order-module-grid dl>div:last-child{border-bottom:0}.admin-page .admin-order-module-grid dt,.admin-page .admin-order-module-grid dd{margin:0;color:#51433c;font-size:11px}.admin-page .admin-order-module-grid dd{text-align:right;font-weight:600}.admin-page .admin-order-module-grid .module-final-total dt,.admin-page .admin-order-module-grid .module-final-total dd{color:#38271f;font-size:13px;font-weight:700}
+@media(max-width:760px){.admin-page .admin-order-module-grid{grid-template-columns:1fr;padding:12px}.admin-page .admin-order-module-grid .admin-order-item{grid-template-columns:1fr auto}.admin-page .admin-order-module-grid .admin-order-item span{grid-column:1}.admin-page .admin-order-module-grid .admin-order-item b{grid-column:2;grid-row:1/3}}
+
+/* Compact three-dot Actions menu in the Orders table. */
+.admin-page .order-actions-menu{position:relative;display:flex;justify-content:flex-start}
+.admin-page .order-actions-trigger{width:38px;height:34px;padding:0;display:grid;place-items:center;border:1px solid var(--admin-line);border-radius:9px;background:#fff;color:#38271f;font-size:15px;font-weight:700;letter-spacing:2px;cursor:pointer}
+.admin-page .order-actions-trigger:hover,.admin-page .order-actions-trigger[aria-expanded="true"]{border-color:#b99985;background:#f7eee6}
+.admin-page .order-actions-popover{position:absolute;right:0;top:40px;z-index:25;width:180px;padding:6px;border:1px solid var(--admin-line);border-radius:11px;background:#fff;box-shadow:0 16px 38px rgba(56,39,31,.16)}
+.admin-page .order-actions-popover[hidden]{display:none}
+.admin-page .order-actions-popover button{width:100%;padding:10px 11px;border:0;border-radius:7px;background:transparent;color:#38271f;font-size:11px;font-weight:600;text-align:left;cursor:pointer}
+.admin-page .order-actions-popover button:hover{background:#f6eee7}
+.admin-page .order-actions-popover button:last-child{color:#87513a}
+.admin-page .order-actions-popover .delete-order-action{margin-top:3px!important;border-top:1px solid var(--admin-line)!important;border-radius:0 0 7px 7px!important;color:#a23f35!important}
+.admin-page .order-actions-popover .delete-order-action:hover{background:#fff0ed!important}
+.admin-page .table-wrap{overflow:visible}.admin-page .orders-panel{overflow:visible}.admin-page #orderRows tr{position:relative}
+@media(max-width:760px){.admin-page .order-actions-popover{left:auto;right:0;width:190px}}
+
+/* Keep every action inside one menu and above adjacent table rows. */
+.admin-page #orderRows tr:has(.order-actions-trigger[aria-expanded="true"]){z-index:30}
+.admin-page #orderRows td:last-child{position:relative;overflow:visible!important}
+.admin-page .order-actions-menu{width:42px;isolation:isolate}
+.admin-page .order-actions-trigger span{display:block;transform:translateY(-2px);font:700 22px/1 "DM Sans",sans-serif;letter-spacing:0}
+.admin-page .order-actions-trigger:focus{outline:none}.admin-page .order-actions-trigger:focus-visible{box-shadow:0 0 0 3px rgba(128,81,58,.18)}
+.admin-page .order-actions-popover{right:auto!important;left:0!important;top:39px!important;box-sizing:border-box!important;width:190px!important;min-width:190px!important;height:auto!important;display:grid!important;grid-template-columns:1fr!important;gap:3px!important;padding:6px!important;overflow:hidden!important;white-space:normal!important}
+.admin-page .order-actions-popover[hidden]{display:none!important}
+.admin-page .order-actions-popover button{position:static!important;box-sizing:border-box!important;display:block!important;width:100%!important;min-width:0!important;max-width:none!important;height:auto!important;margin:0!important;padding:10px 11px!important;transform:none!important;white-space:nowrap!important}
