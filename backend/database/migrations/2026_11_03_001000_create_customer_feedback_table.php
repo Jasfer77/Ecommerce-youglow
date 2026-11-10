@@ -2,7 +2,6 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
@@ -18,12 +17,6 @@ return new class extends Migration {
             $table->timestamp('submitted_at')->nullable();
             $table->timestamps();
         });
-
-        DB::table('customer_feedback')->insert([
-            ['customer_name'=>'Mia S.','rating'=>5,'comment'=>'The team explained the order process clearly and kept me updated through messages.','is_approved'=>true,'submitted_at'=>now(),'created_at'=>now(),'updated_at'=>now()],
-            ['customer_name'=>'Angela R.','rating'=>5,'comment'=>'My questions were answered patiently, and the whole experience felt personal and organized.','is_approved'=>true,'submitted_at'=>now(),'created_at'=>now(),'updated_at'=>now()],
-            ['customer_name'=>'Camille D.','rating'=>5,'comment'=>'I appreciated the thoughtful support from product selection until my order arrived.','is_approved'=>true,'submitted_at'=>now(),'created_at'=>now(),'updated_at'=>now()],
-        ]);
     }
 
     public function down(): void
