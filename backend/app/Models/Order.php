@@ -12,4 +12,5 @@ class Order extends Model
     protected function casts(): array { return ['subtotal' => 'decimal:2', 'discount_amount' => 'decimal:2', 'shipping_amount' => 'decimal:2', 'total_amount' => 'decimal:2', 'shipping_address' => 'array', 'billing_address' => 'array', 'address_confirmed_at' => 'datetime', 'archived_at' => 'datetime']; }
     public function user(): BelongsTo { return $this->belongsTo(User::class); }
     public function items(): HasMany { return $this->hasMany(OrderItem::class); }
+    public function feedback(): HasMany { return $this->hasMany(CustomerFeedback::class); }
 }

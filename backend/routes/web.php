@@ -30,7 +30,7 @@ Route::get('/products', function () {
 
 Route::get('/account', function () {
     $html = file_get_contents(public_path('account.html'));
-    $html = str_replace(['account-modern.css?v=31','account.js?v=32'], ['account-modern.css?v=55','account.js?v=58'], $html);
+    $html = str_replace(['account-modern.css?v=35','account.js?v=60'], ['account-modern.css?v=61','account.js?v=61'], $html);
     return response($html, 200, [
         'Content-Type' => 'text/html; charset=UTF-8',
         'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
@@ -70,6 +70,7 @@ Route::get('/csrf-token', function () {
 Route::prefix('api')->group(function () {
     Route::get('products', [ProductController::class, 'index']);
     Route::get('feedback', [CustomerFeedbackController::class, 'index']);
+    Route::post('feedback', [CustomerFeedbackController::class, 'store'])->middleware('throttle:10,1');
     Route::post('auth/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
     Route::post('auth/register', [AuthController::class, 'register'])->middleware('throttle:5,1');
     Route::post('auth/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:3,1');
@@ -89,6 +90,7 @@ Route::prefix('api')->group(function () {
     Route::get('payment-methods', [PaymentMethodController::class, 'index']);
     Route::get('messages', [MessageController::class, 'index']);
     Route::get('messages/unread-count', [MessageController::class, 'unreadCount']);
+    Route::get('messages/{message}/attachment', [MessageController::class, 'attachment'])->name('messages.attachment');
     Route::post('messages', [MessageController::class, 'store'])->middleware('throttle:30,1');
 });
 

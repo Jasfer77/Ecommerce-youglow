@@ -6,6 +6,7 @@ use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CustomerFeedbackController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -34,4 +35,7 @@ Route::prefix('api')->middleware('admin.portal')->group(function () {
     Route::post('discounts', [DiscountController::class, 'store']);
     Route::put('discounts/{discount}', [DiscountController::class, 'update']);
     Route::delete('discounts/{discount}', [DiscountController::class, 'destroy']);
+
+    Route::get('admin-feedback', [CustomerFeedbackController::class, 'adminIndex']);
+    Route::patch('admin-feedback/{feedback}', [CustomerFeedbackController::class, 'moderate']);
 });

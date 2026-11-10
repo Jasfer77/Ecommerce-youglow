@@ -27,14 +27,33 @@ window.YG_api=api;
 document.addEventListener('change',event=>{
   const input=event.target.closest('input[type="file"]');
   const file=input?.files?.[0];
-  if(!input||!file)return;
+  if(!input)return;
+  const attachmentControl=input.closest('.message-attachment-control');
+  const attachmentToggle=attachmentControl?.querySelector('.message-attachment-toggle');
+  if(!file){attachmentControl?.classList.remove('has-photo','open');if(attachmentToggle){attachmentToggle.setAttribute('aria-expanded','false');attachmentToggle.setAttribute('aria-label','Add attachment');}return;}
   const allowedTypes=['image/jpeg','image/png','image/webp'];
   let message='';
   if(!allowedTypes.includes(file.type))message='Only JPG, PNG, or WebP image files are allowed.';
   else if(file.size>5*1024*1024)message='The image must be 5 MB or smaller.';
   input.setCustomValidity(message);
-  if(message){input.reportValidity();input.value='';}
+  if(message){input.reportValidity();input.value='';attachmentControl?.classList.remove('has-photo','open');return;}
+  attachmentControl?.classList.add('has-photo');
+  attachmentControl?.classList.remove('open');
+  if(attachmentToggle){attachmentToggle.setAttribute('aria-expanded','false');attachmentToggle.setAttribute('aria-label',`Photo selected: ${file.name}`);attachmentToggle.title=file.name;}
 },true);
+document.addEventListener('click',event=>{
+  const toggle=event.target.closest('.message-attachment-toggle');
+  if(toggle){
+    const control=toggle.closest('.message-attachment-control');
+    const opening=!control.classList.contains('open');
+    document.querySelectorAll('.message-attachment-control.open').forEach(item=>{item.classList.remove('open');item.querySelector('.message-attachment-toggle')?.setAttribute('aria-expanded','false');});
+    control.classList.toggle('open',opening);
+    toggle.setAttribute('aria-expanded',String(opening));
+    return;
+  }
+  if(!event.target.closest('.message-attachment-control'))document.querySelectorAll('.message-attachment-control.open').forEach(item=>{item.classList.remove('open');item.querySelector('.message-attachment-toggle')?.setAttribute('aria-expanded','false');});
+});
+window.YG_resetMessageAttachment=function(form){const control=form.querySelector('.message-attachment-control'),toggle=control?.querySelector('.message-attachment-toggle');control?.classList.remove('open','has-photo');if(toggle){toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Add attachment');toggle.removeAttribute('title');}};
 window.YG_confirm=function({title='Please confirm',message='',confirmText='Confirm',tone='danger'}={}){
   return new Promise(resolve=>{
     document.querySelector('.yg-confirm-backdrop')?.remove();

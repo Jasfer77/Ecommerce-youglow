@@ -25,6 +25,8 @@ class User extends Authenticatable
         'phone',
         'role',
         'address',
+        'landmark',
+        'profile_photo_path',
         'marketing_consent',
         'password',
     ];

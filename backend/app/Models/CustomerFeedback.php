@@ -9,7 +9,7 @@ class CustomerFeedback extends Model
 {
     protected $table = 'customer_feedback';
 
-    protected $fillable = ['user_id', 'customer_name', 'rating', 'comment', 'is_approved', 'submitted_at'];
+    protected $fillable = ['user_id', 'order_id', 'customer_name', 'rating', 'comment', 'is_approved', 'submitted_at'];
 
     protected function casts(): array
     {
@@ -19,5 +19,10 @@ class CustomerFeedback extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function order(): BelongsTo
+    {
+        return $this->belongsTo(Order::class);
     }
 }

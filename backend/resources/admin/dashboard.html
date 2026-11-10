@@ -9,9 +9,9 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Italiana&family=Mrs+Saint+Delafield&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/admin.css?v=12">
-  <link rel="stylesheet" href="/admin-modern.css?v=34">
+  <link rel="stylesheet" href="/admin-modern.css?v=36">
   <link rel="stylesheet" href="/uniform-interface.css?v=7">
-  <link rel="stylesheet" href="/admin-messages-modern.css?v=27">
+  <link rel="stylesheet" href="/admin-messages-modern.css?v=30">
 </head>
 <body class="admin-page">
   <aside class="admin-nav">
@@ -121,7 +121,7 @@
             <div class="client-stats"><div><span>Completed orders</span><strong id="clientOrders">2</strong></div><div><span>Lifetime spend</span><strong id="clientSpend">₱7,270</strong></div><div><span>Eligible offer</span><strong id="clientOffer">GLOW250</strong></div></div>
             <div class="profile-tabs"><button class="active">Conversation</button><button>Order history</button><button>Internal notes</button></div>
             <div class="admin-conversation" id="adminMessages"></div>
-            <form class="admin-reply" id="adminReply"><textarea required placeholder="Reply to this customer…"></textarea><button>Send reply →</button></form>
+            <form class="admin-reply" id="adminReply"><textarea name="text" placeholder="Reply to this customer…"></textarea><span class="message-attachment-control"><button class="message-attachment-toggle" type="button" aria-label="Add attachment" aria-expanded="false">＋</button><label class="message-photo-button" title="Choose a photo"><input type="file" name="photo" accept="image/jpeg,image/png,image/webp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h16v13H4zM7 15l3-3 2.5 2.5 2-2L18 16M8.5 9a1.5 1.5 0 1 0 0 .01z"/></svg><span>Gallery</span></label></span><button>Send reply →</button></form>
             <p class="internal-warning">Customer-visible reply. Keep sensitive operational details in internal notes.</p>
           </article>
         </div>
@@ -162,7 +162,7 @@
   <aside class="floating-message-panel" id="floatingMessagePanel" aria-label="Customer message inbox">
     <header><div><small>Customer inbox</small><strong id="floatingClientName">Messages</strong></div><button type="button" id="hideFloatingMessages" aria-label="Hide messages">×</button></header>
     <div class="floating-message-thread" id="floatingMessageThread"><p>Select a customer to view their messages.</p></div>
-    <form class="floating-message-reply" id="floatingMessageReply"><textarea required placeholder="Reply to customer…"></textarea><button type="submit">Send →</button></form>
+    <form class="floating-message-reply" id="floatingMessageReply"><textarea name="text" placeholder="Reply to customer…"></textarea><span class="message-attachment-control"><button class="message-attachment-toggle" type="button" aria-label="Add attachment" aria-expanded="false">＋</button><label class="message-photo-button" title="Choose a photo"><input type="file" name="photo" accept="image/jpeg,image/png,image/webp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h16v13H4zM7 15l3-3 2.5 2.5 2-2L18 16M8.5 9a1.5 1.5 0 1 0 0 .01z"/></svg><span>Gallery</span></label></span><button type="submit">Send →</button></form>
   </aside>
 
   <div class="product-modal" id="productModal" role="dialog" aria-modal="true" aria-labelledby="productModalTitle">
@@ -232,7 +232,7 @@
   </div>
   <div class="toast" id="adminToast" role="status" aria-live="polite"></div>
   <script>window.YG_PORTAL='admin';</script>
-  <script src="/data.js?v=7"></script>
-  <script src="/admin.js?v=58"></script>
+  <script src="/data.js?v=9"></script>
+  <script src="/admin.js?v=63"></script>
 </body>
 </html>

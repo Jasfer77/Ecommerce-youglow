@@ -19,7 +19,7 @@ class OrderController extends Controller
     public function index(Request $request): JsonResponse
     {
         abort_unless($request->user(), 401);
-        $query=Order::with(['items','user:id,name'])->latest();
+        $query=Order::with(['items','user:id,name','feedback'])->latest();
         if($request->user()->role !== 'admin') $query->where('user_id',$request->user()->id);
         return response()->json($query->get()->map(fn($o)=>$this->format($o)));
     }
@@ -183,7 +183,8 @@ class OrderController extends Controller
     private function format(Order $o): array
     {
         $status=$o->delivery_status==='cancelled'?'cancelled':($o->payment_status==='pending_verification'?'Pending verification':$o->delivery_status);
-        return ['id'=>$o->id,'userId'=>$o->user_id,'number'=>$o->order_number,'customer'=>$o->customer_name ?: $o->user?->name,'email'=>$o->customer_email,'phone'=>$o->customer_phone,'subtotal'=>(float)$o->subtotal,'discountAmount'=>(float)$o->discount_amount,'shippingAmount'=>(float)$o->shipping_amount,'total'=>(float)$o->total_amount,'payment'=>$o->payment_method,'paymentStatus'=>$o->payment_status,'deliveryStatus'=>$o->delivery_status,'workflowStatus'=>$o->workflow_status,'deliveryFeePayment'=>$o->delivery_fee_payment,'paymentReference'=>$o->payment_reference,'receiptUrl'=>$o->receipt_path?"/api/orders/{$o->id}/receipt":null,'address'=>$o->shipping_address,'status'=>str($o->workflow_status?:$status)->replace('_',' ')->title()->toString(),'date'=>$o->created_at?->format('M j, Y'),'completedAt'=>$o->updated_at?->toIso8601String(),'completedTime'=>$o->updated_at?->format('M j, Y · g:i A'),'isArchived'=>(bool)$o->archived_at,'archivedAt'=>$o->archived_at?->format('M j, Y · g:i A'),'items'=>$o->items?->map(fn($i)=>['name'=>$i->product_name,'quantity'=>$i->quantity,'price'=>(float)$i->unit_price,'lineTotal'=>(float)$i->line_total])];
+        $feedback=$o->feedback?->first();
+        return ['id'=>$o->id,'userId'=>$o->user_id,'number'=>$o->order_number,'customer'=>$o->customer_name ?: $o->user?->name,'email'=>$o->customer_email,'phone'=>$o->customer_phone,'subtotal'=>(float)$o->subtotal,'discountAmount'=>(float)$o->discount_amount,'shippingAmount'=>(float)$o->shipping_amount,'total'=>(float)$o->total_amount,'payment'=>$o->payment_method,'paymentStatus'=>$o->payment_status,'deliveryStatus'=>$o->delivery_status,'workflowStatus'=>$o->workflow_status,'deliveryFeePayment'=>$o->delivery_fee_payment,'paymentReference'=>$o->payment_reference,'receiptUrl'=>$o->receipt_path?"/api/orders/{$o->id}/receipt":null,'address'=>$o->shipping_address,'status'=>str($o->workflow_status?:$status)->replace('_',' ')->title()->toString(),'date'=>$o->created_at?->format('M j, Y'),'completedAt'=>$o->updated_at?->toIso8601String(),'completedTime'=>$o->updated_at?->format('M j, Y · g:i A'),'isArchived'=>(bool)$o->archived_at,'archivedAt'=>$o->archived_at?->format('M j, Y · g:i A'),'items'=>$o->items?->map(fn($i)=>['name'=>$i->product_name,'quantity'=>$i->quantity,'price'=>(float)$i->unit_price,'lineTotal'=>(float)$i->line_total]),'feedback'=>$feedback?['rating'=>$feedback->rating,'comment'=>$feedback->comment,'submittedAt'=>$feedback->submitted_at?->format('M j, Y')]:null];
     }
 
     private function customerOrderUpdateMessage(Order $order): string

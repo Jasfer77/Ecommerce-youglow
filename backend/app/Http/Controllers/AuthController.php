@@ -4,13 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Notifications\CustomerPasswordResetNotification;
+use App\Services\ImageStorageService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Validation\Rules\File;
 
 class AuthController extends Controller
 {
@@ -98,11 +101,33 @@ class AuthController extends Controller
         return $request->user() ? response()->json($this->member($request->user())) : response()->json(['message'=>'Unauthenticated'], 401);
     }
 
-    public function update(Request $request): JsonResponse
+    public function update(Request $request, ImageStorageService $images): JsonResponse
     {
         abort_unless($request->user(), 401);
-        $data=$request->validate(['name'=>['required','string','max:120'],'email'=>['required','email','unique:users,email,'.$request->user()->id],'phone'=>['nullable','string','max:32'],'address'=>['nullable','string','max:1000'],'marketing'=>['sometimes','boolean']]);
-        $request->user()->update(['name'=>$data['name'],'email'=>$data['email'],'phone'=>$data['phone'] ?? null,'address'=>$data['address'] ?? null,'marketing_consent'=>$data['marketing'] ?? false]);
+        $data=$request->validate([
+            'name'=>['required','string','max:120'],
+            'email'=>['required','email','unique:users,email,'.$request->user()->id],
+            'phone'=>['nullable','string','max:32'],
+            'address'=>['nullable','string','max:1000'],
+            'landmark'=>['nullable','string','max:255'],
+            'profile_photo'=>['nullable',File::image()->types(['jpg','jpeg','png','webp'])->max(5*1024)],
+            'remove_profile_photo'=>['sometimes','boolean'],
+            'marketing'=>['sometimes','boolean'],
+        ]);
+        $user=$request->user();
+        $oldPhoto=$user->profile_photo_path;
+        $newPhoto=$request->hasFile('profile_photo') ? $images->profilePhoto($request->file('profile_photo')) : null;
+        $removePhoto=(bool)($data['remove_profile_photo']??false);
+        $user->update([
+            'name'=>$data['name'],
+            'email'=>$data['email'],
+            'phone'=>$data['phone'] ?? null,
+            'address'=>$data['address'] ?? null,
+            'landmark'=>$data['landmark'] ?? null,
+            'profile_photo_path'=>$newPhoto ?: ($removePhoto ? null : $oldPhoto),
+            'marketing_consent'=>$request->boolean('marketing'),
+        ]);
+        if($oldPhoto&&($newPhoto||$removePhoto)) Storage::disk('public')->delete($oldPhoto);
         return response()->json($this->member($request->user()->fresh()));
     }
 
@@ -117,6 +142,6 @@ class AuthController extends Controller
     private function member(User $user): array
     {
         $completed=$user->orders()->where('delivery_status','delivered')->count();
-        return ['id'=>'C-'.$user->id,'name'=>$user->name,'email'=>$user->email,'phone'=>$user->phone,'address'=>$user->address,'role'=>$user->role,'marketing'=>$user->marketing_consent,'completedOrders'=>$completed,'totalSpend'=>(float)$user->orders()->where('delivery_status','delivered')->sum('total_amount'),'segment'=>$user->customerSegment()];
+        return ['id'=>'C-'.$user->id,'name'=>$user->name,'email'=>$user->email,'phone'=>$user->phone,'address'=>$user->address,'landmark'=>$user->landmark,'profilePhotoUrl'=>$user->profile_photo_path?'/storage/'.$user->profile_photo_path:null,'role'=>$user->role,'marketing'=>$user->marketing_consent,'completedOrders'=>$completed,'totalSpend'=>(float)$user->orders()->where('delivery_status','delivered')->sum('total_amount'),'segment'=>$user->customerSegment()];
     }
 }

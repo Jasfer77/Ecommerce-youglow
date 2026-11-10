@@ -24,6 +24,16 @@ class ImageStorageService
         return $this->store($file, 'public', 'payment-qr', 1200, 1200, 'png', 8);
     }
 
+    public function messageAttachment(UploadedFile $file): string
+    {
+        return $this->store($file, 'local', 'message-attachments', 1800, 1800, 'jpeg', 84);
+    }
+
+    public function profilePhoto(UploadedFile $file): string
+    {
+        return $this->store($file, 'public', 'profile-photos', 640, 640, 'jpeg', 84);
+    }
+
     private function store(
         UploadedFile $file,
         string $disk,
