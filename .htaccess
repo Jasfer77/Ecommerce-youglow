@@ -1,0 +1,18 @@
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # The Laravel application is stored in backend/, but only backend/public/
+    # may be served by the web server. Block direct browser requests for every
+    # backend path while still allowing the internal rewrite below.
+    RewriteCond %{THE_REQUEST} \s/+backend(?:[/?\s]) [NC]
+    RewriteRule ^ - [F,L]
+
+    RewriteCond %{REQUEST_URI} !^/backend/public/
+    RewriteRule ^(.*)$ backend/public/$1 [L]
+</IfModule>
+
+<IfModule !mod_rewrite.c>
+    Require all denied
+</IfModule>
