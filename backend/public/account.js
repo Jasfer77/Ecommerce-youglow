@@ -41,10 +41,8 @@ if(wantsAdmin){
   const form=$('#signInForm');
   form.querySelector('.eyebrow').textContent='Administrator access';
   form.querySelector('h2').textContent='Sign in to the admin dashboard.';
-  form.elements.email.value='admin@youglow.test';
-  form.elements.password.value='admin1234';
   form.querySelector('button').textContent='Open admin dashboard →';
-  form.querySelector('.testing-hint').textContent='Administrator testing credentials are prefilled.';
+  form.querySelector('.testing-hint').textContent='Use your authorized administrator credentials.';
 }
 function segmentFor(m){if(m.segment==='new_client')return{name:'New',label:'New client',rule:'No completed orders yet',reward:'NEW10 · 10% OFF'};if(m.segment==='old_client')return{name:'Loyal',label:'Loyal client',rule:`${m.completedOrders} completed orders · ${money(m.totalSpend)} lifetime spend`,reward:'LOYAL GLOW · 12% OFF'};return{name:'Returning',label:'Returning client',rule:`${m.completedOrders} completed orders`,reward:'WELCOME BACK'};}
 function ensureCustomerMessageShortcut(){let button=$('#customerMessageShortcut');if(button)return button;button=document.createElement('button');button.id='customerMessageShortcut';button.className='customer-message-shortcut';button.type='button';button.setAttribute('aria-label','Open support messages');button.innerHTML='<b hidden>0</b>';button.onclick=()=>document.querySelector('[data-panel="messages"]').click();document.body.append(button);return button;}

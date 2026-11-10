@@ -16,6 +16,10 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        if (app()->environment('production')) {
+            throw new \RuntimeException('Demo data cannot be seeded in production. Create the first administrator with the app:create-admin command.');
+        }
+
         $admin=User::updateOrCreate(['email'=>'admin@youglow.test'],['name'=>'Jasfer Admin','phone'=>'0917 000 0001','role'=>'admin','password'=>Hash::make('admin1234')]);
         $mia=User::updateOrCreate(['email'=>'mia@example.com'],['name'=>'Mia Santos','phone'=>'0917 555 0198','address'=>'Lahug, Cebu City 6000','role'=>'client','password'=>Hash::make('demo1234'),'marketing_consent'=>true]);
 

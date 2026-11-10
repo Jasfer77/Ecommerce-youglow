@@ -14,7 +14,7 @@ class CustomerProfileTest extends TestCase
 
     public function test_customer_can_save_a_landmark_and_profile_photo(): void
     {
-        Storage::fake('public');
+        Storage::fake('local');
         $customer=User::where('email','mia@example.com')->firstOrFail();
 
         $response=$this->actingAs($customer)->post('/api/auth/profile',[
@@ -29,16 +29,17 @@ class CustomerProfileTest extends TestCase
 
         $response->assertOk()
             ->assertJsonPath('landmark','Blue gate beside the pharmacy')
-            ->assertJsonPath('profilePhotoUrl',fn($url)=>str_starts_with($url,'/storage/profile-photos/'));
+            ->assertJsonPath('profilePhotoUrl','/api/auth/profile-photo');
 
         $customer->refresh();
-        Storage::disk('public')->assertExists($customer->profile_photo_path);
+        Storage::disk('local')->assertExists($customer->profile_photo_path);
+        $this->actingAs($customer)->get('/api/auth/profile-photo')->assertOk()->assertHeader('Cache-Control','max-age=0, no-store, private');
     }
 
     public function test_customer_can_remove_an_existing_profile_photo(): void
     {
-        Storage::fake('public');
-        Storage::disk('public')->put('profile-photos/existing.jpg','photo');
+        Storage::fake('local');
+        Storage::disk('local')->put('profile-photos/existing.jpg','photo');
         $customer=User::where('email','mia@example.com')->firstOrFail();
         $customer->update(['profile_photo_path'=>'profile-photos/existing.jpg']);
 
@@ -51,6 +52,6 @@ class CustomerProfileTest extends TestCase
             'remove_profile_photo'=>true,
         ])->assertOk()->assertJsonPath('profilePhotoUrl',null);
 
-        Storage::disk('public')->assertMissing('profile-photos/existing.jpg');
+        Storage::disk('local')->assertMissing('profile-photos/existing.jpg');
     }
 }

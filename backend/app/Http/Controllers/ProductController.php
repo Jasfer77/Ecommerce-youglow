@@ -21,7 +21,7 @@ class ProductController extends Controller
         $load=function() use($isAdmin) {
             $query=Product::with(['category','stocks'=>fn($q)=>$q->orderBy('expiry_date')]);
             if(!$isAdmin) $query->where('is_active',true);
-            return $query->orderBy('id')->get()->map(fn(Product $product)=>$this->format($product));
+            return $query->orderBy('id')->get()->map(fn(Product $product)=>$this->format($product, $isAdmin));
         };
         $products=$isAdmin?$load():Cache::remember('public.products.v1',now()->addMinutes(5),$load);
         return response()->json($products)->header('Cache-Control',$isAdmin?'private, no-store':'public, max-age=60, stale-while-revalidate=300');
@@ -90,11 +90,13 @@ class ProductController extends Controller
         return $data;
     }
 
-    private function format(Product $product): array
+    private function format(Product $product, bool $includeInventory = true): array
     {
         $product->loadMissing(['category','stocks'=>fn($q)=>$q->orderBy('expiry_date')]); $stock=$product->stocks->first();
         $image=$product->images[0]??null;
-        return ['id'=>(string)$product->id,'name'=>$product->name,'short'=>$product->attributes['short']??$product->sku,'category'=>$product->category->name,'sku'=>$product->sku,'price'=>(float)$product->price,'weight_kg'=>(float)$product->weight_kg,'stock'=>(int)$product->stocks->sum('quantity'),'batch'=>$stock?->batch_number??'—','expiry'=>$stock?->expiry_date?->format('Y-m-d'),'tone'=>$product->attributes['tone']??'peach','benefit'=>$product->description,'imageUrl'=>$image?Storage::disk('public')->url($image):null,'isActive'=>$product->is_active];
+        $payload=['id'=>(string)$product->id,'name'=>$product->name,'short'=>$product->attributes['short']??$product->sku,'category'=>$product->category->name,'price'=>(float)$product->price,'tone'=>$product->attributes['tone']??'peach','benefit'=>$product->description,'imageUrl'=>$image?Storage::disk('public')->url($image):null,'inStock'=>$product->stocks->sum('quantity')>0];
+        if($includeInventory) $payload+=['sku'=>$product->sku,'weight_kg'=>(float)$product->weight_kg,'stock'=>(int)$product->stocks->sum('quantity'),'batch'=>$stock?->batch_number??'—','expiry'=>$stock?->expiry_date?->format('Y-m-d'),'isActive'=>$product->is_active];
+        return $payload;
     }
 
     private function admin(Request $request): void { abort_unless($request->user()?->role==='admin',403,'Admin access required.'); }

@@ -99,7 +99,7 @@ class MessageController extends Controller
         return Storage::disk('local')->response(
             $message->attachment_path,
             $message->attachment_name ?: 'message-photo.jpg',
-            ['Content-Type'=>$message->attachment_mime ?: 'image/jpeg','Cache-Control'=>'private, max-age=86400']
+            ['Content-Type'=>$message->attachment_mime ?: 'image/jpeg','Cache-Control'=>'private, no-store, max-age=0']
         );
     }
 

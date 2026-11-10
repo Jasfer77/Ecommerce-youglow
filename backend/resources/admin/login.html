@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>Admin Login | You Glow Cebu</title>
+    <title>Admin Login | You Glow Cebu</title>
+    <meta name="robots" content="noindex,nofollow,noarchive">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Mrs+Saint+Delafield&family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -23,11 +24,11 @@
         <p class="eyebrow">Secure access</p>
         <h2>Administrator login</h2>
         <p>Enter your administrator account details to continue.</p>
-        <label>Email address<input type="email" name="email" autocomplete="username" required value="admin@youglow.test"></label>
-        <label>Password<input type="password" name="password" autocomplete="current-password" required value="admin1234"></label>
+        <label>Email address<input type="email" name="email" autocomplete="username" required></label>
+        <label>Password<input type="password" name="password" autocomplete="current-password" required></label>
         <button type="submit">Open admin dashboard <span>→</span></button>
         <p class="admin-login-error" id="adminLoginError" role="alert" hidden></p>
-        <small class="admin-testing-note">Testing credentials are prefilled for local development and should be removed before launch.</small>
+        <small class="admin-testing-note">Only authorized You Glow Cebu administrators may sign in.</small>
       </form>
     </section>
   </main>

@@ -43,7 +43,13 @@ MySQL-compatible Laravel migrations and Eloquent models cover users and roles, c
 
 Working Laravel-backed features include customer registration and sign-in, persistent profiles, catalog filtering and cart, server-calculated checkout totals, private payment-receipt storage, FIFO stock deduction, account order history, customer/admin messaging, admin catalog management, CRM customer segments, and fulfillment status updates.
 
-Testing accounts:
+Demo records are available only in local and test environments. Production
+seeding is blocked to prevent test credentials from being deployed. Create the
+first live administrator interactively with:
 
-- Admin: `admin@youglow.test` / `admin1234`
-- Customer: `mia@example.com` / `demo1234`
+```bash
+php artisan app:create-admin admin@your-domain.com --name="Administrator"
+```
+
+The command requires a strong password and does not store it in GitHub or shell
+history.

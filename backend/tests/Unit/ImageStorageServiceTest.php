@@ -41,15 +41,15 @@ class ImageStorageServiceTest extends TestCase
 
     public function test_qr_codes_are_resized_without_lossy_compression(): void
     {
-        Storage::fake('public');
+        Storage::fake('local');
 
         $path = app(ImageStorageService::class)->qrCode(
             UploadedFile::fake()->image('gcash-qr.jpg', 2000, 2000),
         );
 
-        Storage::disk('public')->assertExists($path);
+        Storage::disk('local')->assertExists($path);
         $this->assertStringEndsWith('.png', $path);
-        [$width, $height] = getimagesizefromstring(Storage::disk('public')->get($path));
+        [$width, $height] = getimagesizefromstring(Storage::disk('local')->get($path));
         $this->assertSame(1200, $width);
         $this->assertSame(1200, $height);
     }

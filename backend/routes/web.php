@@ -10,21 +10,71 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
-Route::get('/', function () {
-    return response()->file(public_path('index.html'), [
+$serveSeoPage = function (string $filename) {
+    $appUrl = rtrim((string) config('app.url'), '/');
+    $html = str_replace('{{APP_URL}}', $appUrl, file_get_contents(public_path($filename)));
+
+    return response($html, 200, [
+        'Content-Type' => 'text/html; charset=UTF-8',
         'Cache-Control' => 'public, max-age=0, must-revalidate',
+        'X-Robots-Tag' => 'index, follow',
+    ]);
+};
+
+Route::get('/', fn () => $serveSeoPage('index.html'));
+
+Route::redirect('/shop', '/products', 301);
+
+Route::get('/products', fn () => $serveSeoPage('shop.html'));
+
+Route::get('/robots.txt', function () {
+    $appUrl = rtrim((string) config('app.url'), '/');
+    $robots = <<<ROBOTS
+User-agent: *
+Allow: /
+Disallow: /account
+Disallow: /admin
+Disallow: /api/
+Disallow: /csrf-token
+Disallow: /health
+
+Sitemap: {$appUrl}/sitemap.xml
+ROBOTS;
+
+    return response($robots."\n", 200, [
+        'Content-Type' => 'text/plain; charset=UTF-8',
+        'Cache-Control' => 'public, max-age=3600',
     ]);
 });
 
-Route::get('/shop', function () {
-    return response()->file(public_path('shop.html'), [
-        'Cache-Control' => 'public, max-age=0, must-revalidate',
-    ]);
-});
+Route::get('/sitemap.xml', function () {
+    $appUrl = htmlspecialchars(
+        rtrim((string) config('app.url'), '/'),
+        ENT_XML1 | ENT_QUOTES,
+        'UTF-8'
+    );
+    $lastModified = now()->toDateString();
+    $xml = <<<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>{$appUrl}/</loc>
+    <lastmod>{$lastModified}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>{$appUrl}/products</loc>
+    <lastmod>{$lastModified}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+</urlset>
+XML;
 
-Route::get('/products', function () {
-    return response()->file(public_path('shop.html'), [
-        'Cache-Control' => 'public, max-age=0, must-revalidate',
+    return response($xml, 200, [
+        'Content-Type' => 'application/xml; charset=UTF-8',
+        'Cache-Control' => 'public, max-age=3600',
     ]);
 });
 
@@ -34,6 +84,7 @@ Route::get('/account', function () {
     return response($html, 200, [
         'Content-Type' => 'text/html; charset=UTF-8',
         'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+        'X-Robots-Tag' => 'noindex, nofollow, noarchive',
     ]);
 });
 
@@ -47,11 +98,7 @@ Route::get('/health', function () {
             throw new RuntimeException('Application storage is not writable.');
         }
 
-        return response()->json([
-            'status' => 'ok',
-            'database' => 'ok',
-            'storage' => 'ok',
-        ], 200, ['Cache-Control' => 'no-store']);
+        return response()->json(['status' => 'ok'], 200, ['Cache-Control' => 'no-store']);
     } catch (Throwable $exception) {
         report($exception);
 
@@ -77,6 +124,7 @@ Route::prefix('api')->group(function () {
     Route::post('auth/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:5,1');
     Route::post('auth/logout', [AuthController::class, 'logout']);
     Route::get('auth/me', [AuthController::class, 'me']);
+    Route::get('auth/profile-photo', [AuthController::class, 'profilePhoto']);
     Route::put('auth/profile', [AuthController::class, 'update']);
 
     Route::get('orders', [OrderController::class, 'index']);
@@ -88,6 +136,7 @@ Route::prefix('api')->group(function () {
     Route::get('orders/{order}/receipt', [OrderController::class, 'receipt']);
 
     Route::get('payment-methods', [PaymentMethodController::class, 'index']);
+    Route::get('payment-methods/{paymentMethod}/qr', [PaymentMethodController::class, 'qr'])->name('payment-methods.qr');
     Route::get('messages', [MessageController::class, 'index']);
     Route::get('messages/unread-count', [MessageController::class, 'unreadCount']);
     Route::get('messages/{message}/attachment', [MessageController::class, 'attachment'])->name('messages.attachment');

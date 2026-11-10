@@ -13,6 +13,7 @@ class PaymentMethodController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        abort_unless(in_array($request->user()?->role, ['admin', 'client'], true), 401);
         $isAdmin=$request->user()?->role==='admin';
         $load=function() use($isAdmin) {$query=PaymentMethod::orderBy('sort_order');if(!$isAdmin)$query->where('is_active',true);return $query->get()->map(fn($method)=>$this->format($method));};
         $methods=$isAdmin?$load():Cache::remember('public.payment-methods.v1',now()->addMinutes(5),$load);
@@ -23,16 +24,31 @@ class PaymentMethodController extends Controller
     {
         abort_unless($request->user()?->role==='admin',403);
         $data=$request->validate(['name'=>['required','string','max:80'],'account_name'=>['nullable','string','max:255'],'account_number'=>['nullable','string','max:100'],'bank_name'=>['nullable','string','max:255'],'instructions'=>['nullable','string','max:1000'],'is_active'=>['required','boolean'],'requires_receipt'=>['required','boolean'],'qr'=>['nullable','image','mimes:jpeg,jpg,png,webp','extensions:jpg,jpeg,png,webp','max:5120','dimensions:max_width=6000,max_height=6000'],'remove_qr'=>['nullable','boolean']]);
-        if ($request->boolean('remove_qr') && $paymentMethod->qr_path) { Storage::disk('public')->delete($paymentMethod->qr_path); $data['qr_path']=null; }
-        if ($request->hasFile('qr')) { if($paymentMethod->qr_path) Storage::disk('public')->delete($paymentMethod->qr_path); $data['qr_path']=$images->qrCode($request->file('qr')); }
+        if ($request->boolean('remove_qr') && $paymentMethod->qr_path) { Storage::disk('local')->delete($paymentMethod->qr_path); Storage::disk('public')->delete($paymentMethod->qr_path); $data['qr_path']=null; }
+        if ($request->hasFile('qr')) { if($paymentMethod->qr_path) { Storage::disk('local')->delete($paymentMethod->qr_path); Storage::disk('public')->delete($paymentMethod->qr_path); } $data['qr_path']=$images->qrCode($request->file('qr')); }
         unset($data['qr'],$data['remove_qr']);
         $paymentMethod->update($data);
         Cache::forget('public.payment-methods.v1');
         return response()->json($this->format($paymentMethod->fresh()));
     }
 
+    public function qr(Request $request, PaymentMethod $paymentMethod)
+    {
+        abort_unless(in_array($request->user()?->role, ['admin', 'client'], true), 401);
+        abort_if($request->user()->role === 'client' && ! $paymentMethod->is_active, 404);
+        abort_unless($paymentMethod->qr_path&&Storage::disk('local')->exists($paymentMethod->qr_path),404);
+
+        $response=response()->file(Storage::disk('local')->path($paymentMethod->qr_path),[
+            'Content-Type'=>'image/png',
+            'Content-Disposition'=>'inline; filename="payment-qr.png"',
+        ]);
+        $response->setPrivate();
+        $response->headers->set('Cache-Control','private, no-store, max-age=0');
+        return $response;
+    }
+
     private function format(PaymentMethod $method): array
     {
-        return ['id'=>$method->id,'code'=>$method->code,'name'=>$method->name,'accountName'=>$method->account_name,'accountNumber'=>$method->account_number,'bankName'=>$method->bank_name,'instructions'=>$method->instructions,'qrUrl'=>$method->qr_path?Storage::disk('public')->url($method->qr_path):null,'isActive'=>$method->is_active,'requiresReceipt'=>$method->requires_receipt];
+        return ['id'=>$method->id,'code'=>$method->code,'name'=>$method->name,'accountName'=>$method->account_name,'accountNumber'=>$method->account_number,'bankName'=>$method->bank_name,'instructions'=>$method->instructions,'qrUrl'=>$method->qr_path?route('payment-methods.qr',$method,absolute:false):null,'isActive'=>$method->is_active,'requiresReceipt'=>$method->requires_receipt];
     }
 }

@@ -1,7 +1,0 @@
-/* Shared transition between the customer shop and wellness profile. */
-html{background:#f7f5f2}
-body{opacity:1;transform:translateY(0);transition:opacity .1s ease,transform .1s ease}
-html.page-leaving body{opacity:0;transform:translateY(5px);pointer-events:none}
-html.page-entering body{animation:customer-page-enter .18s ease both}
-@keyframes customer-page-enter{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
-@media(prefers-reduced-motion:reduce){body{transition:none}html.page-entering body{animation:none}}

@@ -21,7 +21,7 @@ class ImageStorageService
 
     public function qrCode(UploadedFile $file): string
     {
-        return $this->store($file, 'public', 'payment-qr', 1200, 1200, 'png', 8);
+        return $this->store($file, 'local', 'payment-qr', 1200, 1200, 'png', 8);
     }
 
     public function messageAttachment(UploadedFile $file): string
@@ -31,7 +31,7 @@ class ImageStorageService
 
     public function profilePhoto(UploadedFile $file): string
     {
-        return $this->store($file, 'public', 'profile-photos', 640, 640, 'jpeg', 84);
+        return $this->store($file, 'local', 'profile-photos', 640, 640, 'jpeg', 84);
     }
 
     private function store(

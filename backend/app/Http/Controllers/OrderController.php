@@ -150,11 +150,13 @@ class OrderController extends Controller
         abort_unless($order->receipt_path&&Storage::disk('local')->exists($order->receipt_path),404);
         $disk=Storage::disk('local');
         $mime=$disk->mimeType($order->receipt_path) ?: 'image/jpeg';
-        return response()->file($disk->path($order->receipt_path),[
+        $response=response()->file($disk->path($order->receipt_path),[
             'Content-Type'=>$mime,
             'Content-Disposition'=>'inline; filename="receipt-'.$order->order_number.'.'.pathinfo($order->receipt_path,PATHINFO_EXTENSION).'"',
-            'Cache-Control'=>'private, no-store, max-age=0',
         ]);
+        $response->setPrivate();
+        $response->headers->set('Cache-Control','private, no-store, max-age=0');
+        return $response;
     }
 
     public function destroy(Request $request, Order $order): JsonResponse

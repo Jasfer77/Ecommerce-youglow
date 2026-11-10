@@ -127,8 +127,26 @@ class AuthController extends Controller
             'profile_photo_path'=>$newPhoto ?: ($removePhoto ? null : $oldPhoto),
             'marketing_consent'=>$request->boolean('marketing'),
         ]);
-        if($oldPhoto&&($newPhoto||$removePhoto)) Storage::disk('public')->delete($oldPhoto);
+        if($oldPhoto&&($newPhoto||$removePhoto)) {
+            Storage::disk('local')->delete($oldPhoto);
+            Storage::disk('public')->delete($oldPhoto);
+        }
         return response()->json($this->member($request->user()->fresh()));
+    }
+
+    public function profilePhoto(Request $request)
+    {
+        $user=$request->user();
+        abort_unless($user,401);
+        abort_unless($user->profile_photo_path&&Storage::disk('local')->exists($user->profile_photo_path),404);
+
+        $response=response()->file(Storage::disk('local')->path($user->profile_photo_path),[
+            'Content-Type'=>'image/jpeg',
+            'Content-Disposition'=>'inline; filename="profile-photo.jpg"',
+        ]);
+        $response->setPrivate();
+        $response->headers->set('Cache-Control','private, no-store, max-age=0');
+        return $response;
     }
 
     public function logout(Request $request): JsonResponse
@@ -142,6 +160,6 @@ class AuthController extends Controller
     private function member(User $user): array
     {
         $completed=$user->orders()->where('delivery_status','delivered')->count();
-        return ['id'=>'C-'.$user->id,'name'=>$user->name,'email'=>$user->email,'phone'=>$user->phone,'address'=>$user->address,'landmark'=>$user->landmark,'profilePhotoUrl'=>$user->profile_photo_path?'/storage/'.$user->profile_photo_path:null,'role'=>$user->role,'marketing'=>$user->marketing_consent,'completedOrders'=>$completed,'totalSpend'=>(float)$user->orders()->where('delivery_status','delivered')->sum('total_amount'),'segment'=>$user->customerSegment()];
+        return ['id'=>'C-'.$user->id,'name'=>$user->name,'email'=>$user->email,'phone'=>$user->phone,'address'=>$user->address,'landmark'=>$user->landmark,'profilePhotoUrl'=>$user->profile_photo_path?'/api/auth/profile-photo':null,'role'=>$user->role,'marketing'=>$user->marketing_consent,'completedOrders'=>$completed,'totalSpend'=>(float)$user->orders()->where('delivery_status','delivered')->sum('total_amount'),'segment'=>$user->customerSegment()];
     }
 }
