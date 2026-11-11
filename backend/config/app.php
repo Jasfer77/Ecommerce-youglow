@@ -54,6 +54,8 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    'indexable' => env('APP_INDEXABLE', env('APP_ENV') === 'production'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone

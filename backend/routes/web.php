@@ -13,11 +13,14 @@ use Illuminate\Support\Facades\Storage;
 $serveSeoPage = function (string $filename) {
     $appUrl = rtrim((string) config('app.url'), '/');
     $html = str_replace('{{APP_URL}}', $appUrl, file_get_contents(public_path($filename)));
+    $robotsHeader = config('app.indexable')
+        ? 'index, follow'
+        : 'noindex, nofollow, noarchive';
 
     return response($html, 200, [
         'Content-Type' => 'text/html; charset=UTF-8',
         'Cache-Control' => 'public, max-age=0, must-revalidate',
-        'X-Robots-Tag' => 'index, follow',
+        'X-Robots-Tag' => $robotsHeader,
     ]);
 };
 
@@ -29,7 +32,8 @@ Route::get('/products', fn () => $serveSeoPage('shop.html'));
 
 Route::get('/robots.txt', function () {
     $appUrl = rtrim((string) config('app.url'), '/');
-    $robots = <<<ROBOTS
+    if (config('app.indexable')) {
+        $robots = <<<ROBOTS
 User-agent: *
 Allow: /
 Disallow: /account
@@ -40,6 +44,12 @@ Disallow: /health
 
 Sitemap: {$appUrl}/sitemap.xml
 ROBOTS;
+    } else {
+        $robots = <<<'ROBOTS'
+User-agent: *
+Disallow: /
+ROBOTS;
+    }
 
     return response($robots."\n", 200, [
         'Content-Type' => 'text/plain; charset=UTF-8',

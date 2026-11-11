@@ -10,7 +10,10 @@ class SeoTest extends TestCase
     {
         parent::setUp();
 
-        config(['app.url' => 'https://youglow.example']);
+        config([
+            'app.url' => 'https://youglow.example',
+            'app.indexable' => true,
+        ]);
     }
 
     public function test_home_page_has_search_and_social_metadata(): void
@@ -71,5 +74,19 @@ class SeoTest extends TestCase
         $this->get('/admin/login')
             ->assertOk()
             ->assertHeader('X-Robots-Tag', 'noindex, nofollow, noarchive');
+    }
+
+    public function test_non_indexable_environment_blocks_search_engines(): void
+    {
+        config(['app.indexable' => false]);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertHeader('X-Robots-Tag', 'noindex, nofollow, noarchive');
+
+        $this->get('/robots.txt')
+            ->assertOk()
+            ->assertSee("User-agent: *\nDisallow: /", false)
+            ->assertDontSee('Sitemap:', false);
     }
 }
