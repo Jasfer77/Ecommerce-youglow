@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="description" content="You Glow Cebu — thoughtful beauty and wellness support, curated products, and guidance for your personal wellness journey." />
   <title>You Glow Cebu | Beauty & Wellness</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Italiana&family=Mrs+Saint+Delafield&display=swap" rel="stylesheet">
