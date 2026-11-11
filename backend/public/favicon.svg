@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="You Glow Cebu">
+  <rect width="64" height="64" rx="15" fill="#fffaf4"/>
+  <g fill="none" stroke="#a9753e" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M32 49C17 44 10 34 9 23c11 1 20 7 23 18"/>
+    <path d="M32 49c15-5 22-15 23-26-11 1-20 7-23 18"/>
+    <path d="M32 49C21 39 21 25 32 14c11 11 11 25 0 35Z"/>
+    <path d="M12 40c-4 1-7 3-9 6 12 7 22 7 29 3M52 40c4 1 7 3 9 6-12 7-22 7-29 3"/>
+  </g>
+</svg>
