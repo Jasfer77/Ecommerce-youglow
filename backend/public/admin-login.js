@@ -1,5 +1,16 @@
 const adminLoginForm=document.querySelector('#adminLoginForm');
 const adminLoginError=document.querySelector('#adminLoginError');
+const adminPassword=document.querySelector('#adminPassword');
+const adminPasswordToggle=document.querySelector('#adminPasswordToggle');
+
+adminPasswordToggle?.addEventListener('click',()=>{
+  const willShow=adminPassword.type==='password';
+  adminPassword.type=willShow?'text':'password';
+  adminPasswordToggle.setAttribute('aria-pressed',String(willShow));
+  adminPasswordToggle.setAttribute('aria-label',willShow?'Hide password':'Show password');
+  adminPasswordToggle.querySelector('b').textContent=willShow?'Hide':'Show';
+  adminPassword.focus({preventScroll:true});
+});
 
 (async()=>{
   try{

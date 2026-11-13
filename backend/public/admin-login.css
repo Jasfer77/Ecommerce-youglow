@@ -107,6 +107,14 @@
 .admin-login-form input{width:100%;min-height:52px;margin-top:8px;padding:0 16px;border:1px solid var(--login-line);border-radius:12px;background:#fff;color:var(--login-ink);font:500 15px var(--font-body);outline:none;transition:border-color .2s,box-shadow .2s,background .2s}
 .admin-login-form input:hover{border-color:#cbb9ab}
 .admin-login-form input:focus{border-color:#a97756;background:#fff;box-shadow:0 0 0 4px rgba(166,111,73,.1)}
+.admin-login-form .admin-password-label{margin-bottom:0}
+.admin-password-field{position:relative;display:block;margin:0 0 17px}
+.admin-password-field input{padding-right:94px}
+.admin-password-toggle{position:absolute;right:8px;bottom:7px;min-width:76px;height:38px;padding:0 11px;display:flex;align-items:center;justify-content:center;gap:7px;border:0;border-radius:9px;background:#f3ece5;color:#5b4437;font:700 9px/1 var(--font-body);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:background .2s,color .2s}
+.admin-password-toggle:hover{background:#eadfd5;color:var(--login-ink)}
+.admin-password-toggle:focus-visible{outline:3px solid rgba(166,111,73,.22);outline-offset:2px}
+.admin-password-toggle span{width:16px;height:16px;display:block;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M12 5c5.5 0 9.5 5.2 9.7 5.4a2.5 2.5 0 0 1 0 3.2C21.5 13.8 17.5 19 12 19S2.5 13.8 2.3 13.6a2.5 2.5 0 0 1 0-3.2C2.5 10.2 6.5 5 12 5Zm0 2c-4.4 0-7.8 4.3-8.2 4.8a.5.5 0 0 0 0 .4C4.2 12.7 7.6 17 12 17s7.8-4.3 8.2-4.8a.5.5 0 0 0 0-.4C19.8 11.3 16.4 7 12 7Zm0 2.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Z'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M12 5c5.5 0 9.5 5.2 9.7 5.4a2.5 2.5 0 0 1 0 3.2C21.5 13.8 17.5 19 12 19S2.5 13.8 2.3 13.6a2.5 2.5 0 0 1 0-3.2C2.5 10.2 6.5 5 12 5Zm0 2c-4.4 0-7.8 4.3-8.2 4.8a.5.5 0 0 0 0 .4C4.2 12.7 7.6 17 12 17s7.8-4.3 8.2-4.8a.5.5 0 0 0 0-.4C19.8 11.3 16.4 7 12 7Zm0 2.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Z'/%3E%3C/svg%3E") center/contain no-repeat}
+.admin-password-toggle[aria-pressed="true"] span{opacity:.66}
 .admin-login-form>button{width:100%;min-height:52px;margin-top:5px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;border:0;border-radius:999px;background:var(--login-ink);color:#fff;font:600 10px var(--font-body);letter-spacing:.13em;text-transform:uppercase;cursor:pointer;box-shadow:0 10px 24px rgba(56,39,31,.14);transition:transform .2s,background .2s,box-shadow .2s}
 .admin-login-form>button:hover{transform:translateY(-1px);background:#4b3328;box-shadow:0 13px 28px rgba(56,39,31,.18)}
 .admin-login-form>button:focus-visible{outline:3px solid rgba(166,111,73,.25);outline-offset:3px}
@@ -155,5 +163,5 @@
 }
 
 @media(prefers-reduced-motion:reduce){
-  .admin-login-form input,.admin-login-form>button,.back-to-store{transition:none}
+  .admin-login-form input,.admin-login-form>button,.admin-password-toggle,.back-to-store{transition:none}
 }
