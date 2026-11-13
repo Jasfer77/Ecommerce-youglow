@@ -11,6 +11,10 @@ The application runs locally with Laravel 12, XAMPP PHP 8.2, and XAMPP MariaDB/M
 
 The launcher checks that XAMPP MySQL is running before starting Laravel.
 
+## System documentation
+
+- [Process flow and separated modules](docs/PROCESS_FLOW.md)
+
 ## View the database
 
 Start **Apache** and **MySQL** in XAMPP Manager, then open <http://localhost/phpmyadmin>. The application database is named `youglow`.
