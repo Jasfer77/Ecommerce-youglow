@@ -263,8 +263,7 @@ async function initializeAdmin(){
     openModule(location.hash.slice(1)||'overview',false);
     renderProducts();renderMetrics();renderExpiry();
     await Promise.all([loadOrders(),loadClients(),loadFeedback(),loadAdministrators(),loadPaymentMethods(),loadDiscounts()]);
-    window.setInterval(loadOrders,30000);
-    window.setInterval(()=>loadClients(true),10000);
+    startAdminRealtime();
   }catch(_){
     location.href='/admin/login';
   }
@@ -377,4 +376,43 @@ adminTransactionSummary=function(order){
   const address=order.address||{};
   const amounts=`<div class="transaction-total-summary"><div class="transaction-amount product-amount"><span>Product total</span><strong>${money(order.subtotal)}</strong></div>${order.shippingAmount>0?`<div class="transaction-amount"><span>Delivery fee</span><strong>${money(order.shippingAmount)}</strong></div>`:''}<div class="transaction-amount final-amount"><span>Final payment total</span><strong>${money(order.total)}</strong></div></div>`;
   return `${adminOrderDetails(order)}${amounts}<div class="admin-verified-address"><b>Customer-verified delivery details</b><p>${escapeHtml(order.customer||'Customer')} · ${escapeHtml(order.phone||'No mobile number')}</p><p><strong>Address:</strong> ${escapeHtml(address.address||'No address provided')}</p><p><strong>Landmark:</strong> ${escapeHtml(address.landmark||'Not provided')}</p><p class="address-region"><strong>Region:</strong> ${escapeHtml(address.region||'Not provided')} <span aria-hidden="true">·</span> <strong>Postal code:</strong> ${escapeHtml(address.postal||'Not provided')}</p></div>`;
+};
+
+let adminRealtimeTimer=null;
+let adminRealtimeBusy=false;
+let adminRealtimeState=null;
+async function pollAdminRealtime(){
+  if(adminRealtimeTimer)window.clearTimeout(adminRealtimeTimer);
+  const delay=document.hidden?15000:4000;
+  if(adminRealtimeBusy){adminRealtimeTimer=window.setTimeout(pollAdminRealtime,delay);return;}
+  adminRealtimeBusy=true;
+  try{
+    const state=await YG_api('/api/notifications/state');
+    const previous=adminRealtimeState;
+    adminRealtimeState=state;
+    const notificationTotal=Number(state.unreadMessages||0)+Number(state.pendingOrders||0);
+    $('#notificationsButton').dataset.count=notificationTotal||'';
+    $('#notificationsButton').classList.toggle('has-notifications',notificationTotal>0);
+    if(previous){
+      const ordersChanged=state.ordersVersion!==previous.ordersVersion;
+      const messagesChanged=state.messagesVersion!==previous.messagesVersion;
+      if(ordersChanged)await loadOrders();
+      if(messagesChanged){
+        await loadClients(true);
+        const messageModuleOpen=document.querySelector('[data-admin-module="messages"]')?.classList.contains('active');
+        const floatingOpen=$('#floatingMessagePanel')?.classList.contains('open');
+        if(selectedClient&&(messageModuleOpen||floatingOpen))await renderAdminMessages();
+      }
+    }
+  }catch(error){if(error.message?.includes('Unauthenticated'))adminRealtimeState=null;}
+  finally{adminRealtimeBusy=false;adminRealtimeTimer=window.setTimeout(pollAdminRealtime,delay);}
+}
+function startAdminRealtime(){if(!adminRealtimeTimer)pollAdminRealtime();}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){adminRealtimeState=null;pollAdminRealtime();}});
+window.addEventListener('focus',pollAdminRealtime);
+
+$('#notificationsButton').onclick=()=>{
+  if(Number(adminRealtimeState?.unreadMessages||0)>0)openModule('messages');
+  else if(Number(adminRealtimeState?.pendingOrders||0)>0)openModule('orders');
+  else toast('You are all caught up.');
 };
