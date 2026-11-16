@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Conversation;
 use App\Models\Message;
+use App\Models\Order;
 use App\Models\User;
 use App\Services\EmailNotificationService;
 use App\Services\ImageStorageService;
@@ -60,6 +61,35 @@ class MessageController extends Controller
         if($request->user()->role==='admin') return response()->json(['count'=>0]);
         $count=Message::whereHas('conversation',fn($q)=>$q->where('user_id',$request->user()->id))->whereHas('sender',fn($q)=>$q->where('role','admin'))->whereNull('read_at')->count();
         return response()->json(['count'=>$count]);
+    }
+
+    public function notificationState(Request $request): JsonResponse
+    {
+        $user=$request->user();
+        abort_unless($user,401);
+
+        if($user->role==='admin') {
+            $unread=Message::whereHas('sender',fn($query)=>$query->where('role','client'))
+                ->whereNull('read_at')->count();
+            $pending=Order::where('delivery_status','pending')->whereNull('archived_at')->count();
+            $messageVersion=Message::max('updated_at');
+            $orderVersion=Order::max('updated_at');
+        } else {
+            $conversationIds=Conversation::where('user_id',$user->id)->select('id');
+            $messages=Message::whereIn('conversation_id',$conversationIds);
+            $unread=(clone $messages)->whereHas('sender',fn($query)=>$query->where('role','admin'))
+                ->whereNull('read_at')->count();
+            $pending=Order::where('user_id',$user->id)->where('delivery_status','pending')->whereNull('archived_at')->count();
+            $messageVersion=(clone $messages)->max('updated_at');
+            $orderVersion=Order::where('user_id',$user->id)->max('updated_at');
+        }
+
+        return response()->json([
+            'unreadMessages'=>$unread,
+            'pendingOrders'=>$pending,
+            'messagesVersion'=>(string)($messageVersion??''),
+            'ordersVersion'=>(string)($orderVersion??''),
+        ],200,['Cache-Control'=>'private, no-store, max-age=0']);
     }
 
     public function store(Request $request, EmailNotificationService $notifications, ImageStorageService $images): JsonResponse

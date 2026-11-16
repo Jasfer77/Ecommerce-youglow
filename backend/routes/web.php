@@ -149,6 +149,7 @@ Route::prefix('api')->group(function () {
     Route::get('payment-methods/{paymentMethod}/qr', [PaymentMethodController::class, 'qr'])->name('payment-methods.qr');
     Route::get('messages', [MessageController::class, 'index']);
     Route::get('messages/unread-count', [MessageController::class, 'unreadCount']);
+    Route::get('notifications/state', [MessageController::class, 'notificationState'])->middleware('throttle:120,1');
     Route::get('messages/{message}/attachment', [MessageController::class, 'attachment'])->name('messages.attachment');
     Route::post('messages', [MessageController::class, 'store'])->middleware('throttle:30,1');
 });

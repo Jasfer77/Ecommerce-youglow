@@ -16,7 +16,7 @@ async function csrfToken(refresh=false){
 async function api(path,options={}){
   const method=(options.method||'GET').toUpperCase();
   const mutating=!['GET','HEAD','OPTIONS'].includes(method);
-  const send=async refresh=>fetch(path,{credentials:'same-origin',...options,headers:{'X-YG-Portal':window.YG_PORTAL||'customer',Accept:'application/json',...(options.body instanceof FormData?{}:{'Content-Type':'application/json'}),...(mutating?{'X-CSRF-TOKEN':await csrfToken(refresh)}:{}),...(options.headers||{})}});
+  const send=async refresh=>fetch(path,{credentials:'same-origin',cache:mutating?'default':'no-store',...options,headers:{'X-YG-Portal':window.YG_PORTAL||'customer',Accept:'application/json',...(mutating?{}:{'Cache-Control':'no-cache'}),...(options.body instanceof FormData?{}:{'Content-Type':'application/json'}),...(mutating?{'X-CSRF-TOKEN':await csrfToken(refresh)}:{}),...(options.headers||{})}});
   let response=await send(false);
   if(response.status===419&&mutating)response=await send(true);
   const data=await response.json().catch(()=>({}));

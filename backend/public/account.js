@@ -176,7 +176,34 @@ $('#accountCartTrigger').onclick=()=>toggleAccountCart(true);$('#closeAccountCar
 $('#accountCheckoutButton').onclick=openAccountCheckout;
 $('#signOut').onclick=async()=>{await YG_api('/api/auth/logout',{method:'POST',body:'{}'});localStorage.removeItem('yg-customer-display');location.reload();};
 (async()=>{try{member=await YG_api('/api/auth/me');if(member.role==='admin'){location.href='/admin';return;}await showPortal();}catch(_){}})();
-window.setInterval(()=>{if(member?.role==='client'&&!$('#messagesPanel').classList.contains('active'))loadMessageBadge();},10000);
+let customerRealtimeTimer=null;
+let customerRealtimeBusy=false;
+let customerRealtimeState=null;
+async function pollCustomerRealtime(){
+  if(customerRealtimeTimer)window.clearTimeout(customerRealtimeTimer);
+  const delay=document.hidden?15000:4000;
+  if(!member||member.role!=='client'||customerRealtimeBusy){customerRealtimeTimer=window.setTimeout(pollCustomerRealtime,delay);return;}
+  customerRealtimeBusy=true;
+  try{
+    const state=await YG_api('/api/notifications/state');
+    const previous=customerRealtimeState;
+    customerRealtimeState=state;
+    setMessageBadge(state.unreadMessages);
+    if(previous){
+      const messagesChanged=state.messagesVersion!==previous.messagesVersion;
+      const ordersChanged=state.ordersVersion!==previous.ordersVersion;
+      if(ordersChanged)await renderOrders();
+      if((messagesChanged||ordersChanged)&&$('#messagesPanel').classList.contains('active'))await renderMessages();
+      else if(messagesChanged&&Number(state.unreadMessages)>Number(previous.unreadMessages))toast('You have a new message from Admin.');
+      renderOverview(Number(state.unreadMessages)||0);
+    }
+  }catch(error){if(error.message?.includes('Unauthenticated'))customerRealtimeState=null;}
+  finally{customerRealtimeBusy=false;customerRealtimeTimer=window.setTimeout(pollCustomerRealtime,delay);}
+}
+function startCustomerRealtime(){if(!customerRealtimeTimer)pollCustomerRealtime();}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&member?.role==='client'){customerRealtimeState=null;pollCustomerRealtime();}});
+window.addEventListener('focus',()=>{if(member?.role==='client')pollCustomerRealtime();});
+startCustomerRealtime();
 
 let customerMessageSearchQuery='';
 function filterCustomerMessages(){const query=customerMessageSearchQuery.trim().toLowerCase(),bubbles=[...document.querySelectorAll('#customerMessages>.bubble')];let matches=0;bubbles.forEach(bubble=>{const visible=!query||bubble.textContent.toLowerCase().includes(query);bubble.hidden=!visible;if(visible)matches++;});let empty=$('#customerMessageSearchEmpty');if(!empty){empty=document.createElement('p');empty.id='customerMessageSearchEmpty';empty.className='message-search-empty';$('#customerMessages').appendChild(empty);}empty.textContent='No messages match your search.';empty.hidden=!query||matches>0;}
