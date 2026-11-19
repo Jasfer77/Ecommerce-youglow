@@ -83,7 +83,7 @@
   .stock-pill{background:#fffaf4;color:var(--brown);font-weight:600}
   .catalog-body{padding:16px 0 24px}
   .catalog-body>p:first-child{margin:0 0 8px}
-  .catalog-body h3{min-height:auto;font-size:26px;margin-bottom:8px}
+  .catalog-body h3{height:auto;min-height:0;font-size:26px;margin:0 0 4px}
   .catalog-body .product-duration{min-height:38px;margin:0 0 9px;color:#4b3a31;font-size:12px;font-weight:600;line-height:1.45;letter-spacing:0;text-transform:none}
   .catalog-body .product-duration em{font-weight:400}
   .catalog-body .benefit{height:38px;margin:0;max-width:90%}
