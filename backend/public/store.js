@@ -24,12 +24,20 @@ function collectionArtwork(product){
   if(label.includes('nad'))return 'assets/landing/nad-50mg.jpg';
   return '';
 }
+function productDuration(product){
+  const name=String(product.name||'').toLowerCase().replace(/\s+/g,' ');
+  if(name.includes('tirzepatide')&&name.includes('15'))return 'Can last up to 6 weeks <em>(depending on dosage)</em>';
+  if(name.includes('tirzepatide')&&name.includes('30'))return 'Can last up to 12 weeks <em>(depending on dosage)</em>';
+  if(name.includes('ghk'))return 'Can last up to 7 sessions or more';
+  if(name.includes('nad+'))return 'Can last up to 11 sessions or more';
+  return '';
+}
 function renderProducts() {
   const sort=$('#sort').value;
   let list=[...products];
   if(sort==='low') list.sort((a,b)=>a.price-b.price); if(sort==='high') list.sort((a,b)=>b.price-a.price);
   $('#resultCount').textContent=list.length;
-  $('#productGrid').innerHTML=list.map(product=>{const artwork=collectionArtwork(product);return `<article class="catalog-card"><div class="catalog-image ${product.tone}"><span class="stock-pill">${product.inStock?'In stock':'Out of stock'}</span>${artwork?`<img class="catalog-product-image" src="${escapeHtml(artwork)}" alt="${escapeHtml(product.name)}">`:`<div class="catalog-bottle">${escapeHtml(product.short)}</div>`}</div><div class="catalog-body"><p>${escapeHtml(product.category)}</p><h3>${escapeHtml(product.name)}</h3><p class="benefit">${escapeHtml(product.benefit)}</p><div class="price-row"><strong>${money(product.price)}</strong><button class="add-button" data-add="${product.id}" aria-label="Add ${escapeHtml(product.name)} to bag" ${product.inStock?'':'disabled'}>+</button></div></div></article>`;}).join('')||'<p>No products are currently available.</p>';
+  $('#productGrid').innerHTML=list.map(product=>{const artwork=collectionArtwork(product);const duration=productDuration(product);return `<article class="catalog-card"><div class="catalog-image ${product.tone}"><span class="stock-pill">${product.inStock?'In stock':'Out of stock'}</span>${artwork?`<img class="catalog-product-image" src="${escapeHtml(artwork)}" alt="${escapeHtml(product.name)}">`:`<div class="catalog-bottle">${escapeHtml(product.short)}</div>`}</div><div class="catalog-body"><p>${escapeHtml(product.category)}</p><h3>${escapeHtml(product.name)}</h3>${duration?`<p class="product-duration">${duration}</p>`:''}<p class="benefit">${escapeHtml(product.benefit)}</p><div class="price-row"><strong>${money(product.price)}</strong><button class="add-button" data-add="${product.id}" aria-label="Add ${escapeHtml(product.name)} to bag" ${product.inStock?'':'disabled'}>+</button></div></div></article>`;}).join('')||'<p>No products are currently available.</p>';
   document.querySelectorAll('[data-add]').forEach(button=>button.onclick=()=>{cart[button.dataset.add]=(cart[button.dataset.add]||0)+1;saveCart();showToast('Added to your bag');});
 }
 function renderCart() {

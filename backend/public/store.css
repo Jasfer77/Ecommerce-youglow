@@ -84,6 +84,8 @@
   .catalog-body{padding:16px 0 24px}
   .catalog-body>p:first-child{margin:0 0 8px}
   .catalog-body h3{min-height:auto;font-size:26px;margin-bottom:8px}
+  .catalog-body .product-duration{min-height:38px;margin:0 0 9px;color:#4b3a31;font-size:12px;font-weight:600;line-height:1.45;letter-spacing:0;text-transform:none}
+  .catalog-body .product-duration em{font-weight:400}
   .catalog-body .benefit{height:38px;margin:0;max-width:90%}
   .price-row{margin-top:16px;border-top:1px solid var(--line);padding-top:13px}
   .add-button{position:absolute;left:8px;right:8px;top:338px;width:auto;height:44px;background:#fffaf4;border:0;color:var(--brown);font-size:0;opacity:0;transform:translateY(8px);transition:.25s}
@@ -163,6 +165,8 @@
 .stock-pill{border-radius:999px;padding:7px 11px;background:rgba(255,255,255,.82);backdrop-filter:blur(8px)}
 .catalog-body{padding-top:20px}
 .catalog-body h3{color:#31251f}
+.catalog-body .product-duration{margin:0 0 9px;color:#4b3a31;font-size:12px;font-weight:600;line-height:1.45;letter-spacing:0;text-transform:none}
+.catalog-body .product-duration em{font-weight:400}
 .catalog-body .benefit{color:#786961}
 .price-row{border-color:#e8e0d9}
 .add-button{border-radius:10px;background:rgba(255,250,244,.94);box-shadow:0 8px 24px rgba(53,34,25,.08)}
@@ -216,6 +220,7 @@
   .catalog-card{border-radius:0;background:transparent;overflow:visible}
   .catalog-image{border-radius:16px}
   .catalog-body{padding:18px 3px 24px}
+  .catalog-body .product-duration{min-height:0;margin-bottom:10px;font-size:13px}
   .add-button{border:0;background:#34251e;color:#fff;box-shadow:none}
   .checkout-panel{border-radius:22px 22px 0 0}
 }
