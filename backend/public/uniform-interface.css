@@ -33,7 +33,7 @@ body.store-page,body.account-page,body.admin-page,body.admin-login-page{overflow
 .store-page .button,.store-page button,.store-page nav a{font-weight:600}
 .store-page .button,.store-page .button span,.store-page button,.store-page button span,
 .store-page .stock-pill,.store-page .stock-pill span{color:inherit}
-.store-page .button-dark,.store-page .button-dark span,.store-page .add-button,.store-page .add-button span{color:#fff!important}
+.store-page .button-dark,.store-page .button-dark span{color:#fff!important}
 
 /* Consistent storefront title scale on phones. */
 @media(max-width:700px){
@@ -77,6 +77,22 @@ body.store-page,body.account-page,body.admin-page,body.admin-login-page{overflow
 /* Keep the product duration directly attached to its product name. */
 .store-page .catalog-body h3{min-height:0;margin:0 0 2px}
 .store-page .catalog-body .product-duration{margin-top:0}
+.store-page .price-row{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.store-page .add-button{
+  position:static;inset:auto;width:48px;height:48px;flex:0 0 48px;align-self:center;
+  display:grid;place-items:center;border:0;border-radius:0;
+  background:transparent;color:var(--yg-brown)!important;
+  box-shadow:none;font-size:0;
+  opacity:1;transform:none;cursor:pointer
+}
+.store-page .add-button::before{
+  content:"";display:block;width:31px;height:31px;background:currentColor;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4h2l2.1 10.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L20 8H6'/%3E%3Ccircle cx='10' cy='20' r='1'/%3E%3Ccircle cx='17' cy='20' r='1'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4h2l2.1 10.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L20 8H6'/%3E%3Ccircle cx='10' cy='20' r='1'/%3E%3Ccircle cx='17' cy='20' r='1'/%3E%3C/svg%3E") center/contain no-repeat
+}
+.store-page .add-button::after{content:none}
+.store-page .add-button:hover{background:transparent;color:var(--yg-ink)!important;transform:translateY(-1px)}
+.store-page .add-button:disabled{cursor:not-allowed;opacity:.45;transform:none}
 
 .admin-page{--admin-muted:#66574f}
 .admin-page .admin-header p,
@@ -97,4 +113,5 @@ body.store-page,body.account-page,body.admin-page,body.admin-login-page{overflow
   .store-page .catalog-body h3{font-size:21px;line-height:1.15}
   .store-page .drawer-head h2,.store-page .checkout-step h2{font-size:28px;line-height:1.1}
   .store-page .eyebrow,.store-page .filter-label{font-size:9px}
+  .store-page .add-button{width:48px;height:48px;flex-basis:48px}
 }
