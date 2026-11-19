@@ -74,6 +74,10 @@ body.store-page,body.account-page,body.admin-page,body.admin-login-page{overflow
 .store-page .eyebrow,
 .store-page .filter-label{color:#65483a;font-weight:700}
 
+/* Keep the product duration directly attached to its product name. */
+.store-page .catalog-body h3{min-height:0;margin:0 0 2px}
+.store-page .catalog-body .product-duration{margin-top:0}
+
 .admin-page{--admin-muted:#66574f}
 .admin-page .admin-header p,
 .admin-page .manager-heading>div>p:last-child,
