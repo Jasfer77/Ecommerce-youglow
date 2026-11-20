@@ -27,7 +27,7 @@ class OrderController extends Controller
     public function store(Request $request, CheckoutService $checkout, EmailNotificationService $notifications): JsonResponse
     {
         abort_unless($request->user()?->role==='client',401,'Please sign in as a customer before confirming your order.');
-        $data=$request->validate(['customer'=>['required','string','max:120'],'email'=>['required','email'],'phone'=>['required','string','max:32'],'address'=>['required','string','max:1000'],'landmark'=>['required','string','max:255'],'region'=>['nullable','string','max:100'],'postal'=>['nullable','string','max:20'],'items'=>['required','array','min:1'],'items.*.id'=>['required','integer','exists:products,id'],'items.*.quantity'=>['required','integer','min:1']]);
+        $data=$request->validate(['customer'=>['required','string','max:120'],'email'=>['required','email'],'phone'=>['required','string','max:32'],'address'=>['required','string','max:1000'],'landmark'=>['required','string','max:255'],'region'=>['nullable','string','max:100'],'postal'=>['nullable','string','max:20'],'promo_code'=>['nullable','string','max:40'],'items'=>['required','array','min:1'],'items.*.id'=>['required','integer','exists:products,id'],'items.*.quantity'=>['required','integer','min:1']]);
         $order=$checkout->create($data,$request->user());
         $notifications->adminsForOrder($order, 'New order requires review', $order->customer_name.' placed a new order. Review the items and confirm the delivery fee.');
         return response()->json($this->format($order),201);
@@ -49,12 +49,16 @@ class OrderController extends Controller
                 $data['workflow_status']='awaiting_address_confirmation';
             }
             if(isset($data['delivery_status'])) {
+                if($data['delivery_status']==='delivered'&&!in_array($order->delivery_status,['handed_over','in_transit'],true)) {
+                    return response()->json(['message'=>'Only an in-transit order can be marked as delivered.'],422);
+                }
                 $data['workflow_status']=match($data['delivery_status']) {
                     'in_transit','handed_over' => 'in_transit',
                     'delivered' => 'completed',
                     'cancelled' => 'cancelled',
                     default => $data['workflow_status'] ?? $order->workflow_status,
                 };
+                if($data['delivery_status']==='delivered'&&$order->payment_status==='cod_pending') $data['payment_status']='verified';
             }
             if(($data['delivery_status']??null)==='cancelled'&&$order->delivery_status!=='cancelled') {
                 DB::transaction(function() use($order,$data) {
@@ -149,10 +153,14 @@ class OrderController extends Controller
         abort_unless($user&&($user->role==='admin'||(int)$order->user_id===(int)$user->id),403);
         abort_unless($order->receipt_path&&Storage::disk('local')->exists($order->receipt_path),404);
         $disk=Storage::disk('local');
-        $mime=$disk->mimeType($order->receipt_path) ?: 'image/jpeg';
-        $response=response()->file($disk->path($order->receipt_path),[
+        $path=$disk->path($order->receipt_path);
+        $image=@getimagesize($path);
+        $mime=is_array($image) ? ($image['mime']??null) : null;
+        abort_unless(in_array($mime,['image/jpeg','image/png','image/webp'],true),422,'The saved payment receipt is not a supported image.');
+        $extension=match($mime){'image/png'=>'png','image/webp'=>'webp',default=>'jpg'};
+        $response=response()->file($path,[
             'Content-Type'=>$mime,
-            'Content-Disposition'=>'inline; filename="receipt-'.$order->order_number.'.'.pathinfo($order->receipt_path,PATHINFO_EXTENSION).'"',
+            'Content-Disposition'=>'inline; filename="receipt-'.$order->order_number.'.'.$extension.'"',
         ]);
         $response->setPrivate();
         $response->headers->set('Cache-Control','private, no-store, max-age=0');

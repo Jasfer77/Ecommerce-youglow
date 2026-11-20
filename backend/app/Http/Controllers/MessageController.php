@@ -32,7 +32,7 @@ class MessageController extends Controller
 
         return response()->json($clients->map(function($user) {
             $segment=$user->customerSegment();
-            return ['id'=>'C-'.$user->id,'userId'=>$user->id,'name'=>$user->name,'email'=>$user->email,'phone'=>$user->phone,'completedOrders'=>$user->completed_orders,'totalSpend'=>(float)($user->total_spend??0),'unreadMessages'=>(int)$user->unread_messages,'segment'=>str($segment)->replace('_client','')->title()->toString(),'offer'=>$segment==='new_client'?'NEW10':($segment==='old_client'?'LOYAL12':'GLOW250')];
+            return ['id'=>'C-'.$user->id,'userId'=>$user->id,'name'=>$user->name,'email'=>$user->email,'phone'=>$user->phone,'address'=>$user->address,'landmark'=>$user->landmark,'marketingConsent'=>(bool)$user->marketing_consent,'registeredAt'=>$user->created_at?->format('M j, Y'),'completedOrders'=>$user->completed_orders,'totalSpend'=>(float)($user->total_spend??0),'unreadMessages'=>(int)$user->unread_messages,'segment'=>str($segment)->replace('_client','')->title()->toString(),'offer'=>$segment==='new_client'?'NEW10':($segment==='old_client'?'LOYAL12':'GLOW250')];
         }));
     }
 

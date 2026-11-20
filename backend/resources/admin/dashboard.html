@@ -9,9 +9,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Italiana&family=Mrs+Saint+Delafield&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/styles.css?v=3">
   <link rel="stylesheet" href="/admin.css?v=12">
-  <link rel="stylesheet" href="/admin-modern.css?v=37">
+  <link rel="stylesheet" href="/admin-modern.css?v=38">
   <link rel="stylesheet" href="/uniform-interface.css?v=7">
   <link rel="stylesheet" href="/admin-messages-modern.css?v=30">
 </head>
@@ -108,7 +108,15 @@
 
     <section class="admin-module" data-admin-module="customers" id="customers" aria-label="Customers">
       <div class="customer-directory-workspace">
-        <div class="module-action-row"><button class="primary-action" id="addCustomer" type="button">+ Add customer</button></div>
+        <div class="customer-directory-toolbar">
+          <p><strong>Customer database</strong><span>Contact, delivery, order, and marketing-consent information.</span></p>
+          <div class="customer-export-controls">
+            <label>Export<select id="customerExportScope"><option value="all">All customers</option><option value="consented">Marketing consent only</option></select></label>
+            <label>Format<select id="customerExportFormat"><option value="csv">CSV</option><option value="excel">Excel</option></select></label>
+            <button class="secondary-action" id="exportCustomers" type="button">Export customers</button>
+            <button class="primary-action" id="addCustomer" type="button">+ Add customer</button>
+          </div>
+        </div>
         <div class="customer-directory" id="customerDirectory"><p class="empty-admin-state">Loading customers…</p></div>
         <nav class="product-pagination" id="customerPagination" aria-label="Customer pages"></nav>
       </div>
@@ -234,7 +242,7 @@
   </div>
   <div class="toast" id="adminToast" role="status" aria-live="polite"></div>
   <script>window.YG_PORTAL='admin';</script>
-  <script src="/data.js?v=10"></script>
-  <script src="/admin.js?v=64"></script>
+  <script src="/data.js?v=12"></script>
+  <script src="/admin.js?v=66"></script>
 </body>
 </html>

@@ -157,7 +157,12 @@ class CheckoutTest extends TestCase
             ->assertJsonPath('paymentReference','GCASH-987654321')
             ->assertJsonPath('receiptUrl',"/api/orders/{$orderId}/receipt");
 
-        $this->actingAs($admin)->get($payment->json('receiptUrl'))->assertOk();
+        $preview=$this->actingAs($admin)->get($payment->json('receiptUrl'))
+            ->assertOk()
+            ->assertHeader('Content-Type','image/jpeg');
+
+        $receiptPath=Order::findOrFail($orderId)->receipt_path;
+        $this->assertStringStartsWith("\xFF\xD8\xFF",Storage::disk('local')->get($receiptPath));
     }
 
     public function test_admin_can_archive_and_restore_an_order_without_changing_its_status(): void

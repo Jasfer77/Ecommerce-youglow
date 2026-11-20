@@ -104,6 +104,7 @@ class AuthController extends Controller
     public function update(Request $request, ImageStorageService $images): JsonResponse
     {
         abort_unless($request->user(), 401);
+        $request->merge(['marketing'=>$request->boolean('marketing')]);
         $data=$request->validate([
             'name'=>['required','string','max:120'],
             'email'=>['required','email','unique:users,email,'.$request->user()->id],
@@ -112,7 +113,7 @@ class AuthController extends Controller
             'landmark'=>['nullable','string','max:255'],
             'profile_photo'=>['nullable',File::image()->types(['jpg','jpeg','png','webp'])->max(5*1024)],
             'remove_profile_photo'=>['sometimes','boolean'],
-            'marketing'=>['sometimes','boolean'],
+            'marketing'=>['required','boolean'],
         ]);
         $user=$request->user();
         $oldPhoto=$user->profile_photo_path;

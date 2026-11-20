@@ -3,8 +3,10 @@
 namespace Tests\Feature;
 
 use App\Models\Discount;
+use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class DiscountAdminTest extends TestCase
@@ -48,5 +50,38 @@ class DiscountAdminTest extends TestCase
             'value' => 101,
             'customer_ids' => [$customer->id],
         ])->assertUnprocessable()->assertJsonValidationErrors('value');
+    }
+
+    public function test_assigned_customer_can_quote_and_apply_a_promo_code(): void
+    {
+        Notification::fake();
+        $customer=User::where('role','client')->firstOrFail();
+        $product=Product::where('is_active',true)->whereHas('stocks',fn($query)=>$query->where('quantity','>',0))->firstOrFail();
+        $discount=Discount::create(['name'=>'Checkout test reward','code'=>'CHECKOUT20','type'=>'percentage','value'=>20,'target'=>'assigned','minimum_order_value'=>0,'usage_limit_per_user'=>1,'is_active'=>true,'expires_at'=>now()->addMonth()]);
+        $discount->users()->attach($customer->id);
+
+        $quote=$this->actingAs($customer)->postJson('/api/discounts/quote',['code'=>'checkout20','items'=>[['id'=>$product->id,'quantity'=>1]]])
+            ->assertOk()
+            ->assertJsonPath('code','CHECKOUT20');
+        $this->assertEquals(round((float)$product->price*.2,2),$quote->json('discountAmount'));
+
+        $placed=$this->actingAs($customer)->postJson('/api/orders',['customer'=>$customer->name,'email'=>$customer->email,'phone'=>$customer->phone,'address'=>$customer->address?:'Cebu City','landmark'=>'Near Cebu City Hall','region'=>'Cebu / Local','postal'=>'6000','promo_code'=>'CHECKOUT20','items'=>[['id'=>$product->id,'quantity'=>1]]])
+            ->assertCreated();
+
+        $this->assertEquals(round((float)$product->price*.2,2),$placed->json('discountAmount'));
+        $this->assertDatabaseHas('discount_user',['discount_id'=>$discount->id,'user_id'=>$customer->id,'times_used'=>1]);
+    }
+
+    public function test_customer_cannot_apply_a_promo_assigned_to_someone_else(): void
+    {
+        $customers=User::where('role','client')->limit(2)->get();
+        $this->assertCount(2,$customers);
+        $product=Product::where('is_active',true)->firstOrFail();
+        $discount=Discount::create(['name'=>'Private reward','code'=>'PRIVATE10','type'=>'percentage','value'=>10,'target'=>'assigned','minimum_order_value'=>0,'usage_limit_per_user'=>1,'is_active'=>true]);
+        $discount->users()->attach($customers->last()->id);
+
+        $this->actingAs($customers->first())->postJson('/api/discounts/quote',['code'=>'PRIVATE10','items'=>[['id'=>$product->id,'quantity'=>1]]])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('promo_code');
     }
 }

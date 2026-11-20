@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Discount;
 use App\Models\User;
+use App\Services\CheckoutService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -11,6 +12,13 @@ use Illuminate\Validation\ValidationException;
 
 class DiscountController extends Controller
 {
+    public function quote(Request $request, CheckoutService $checkout): JsonResponse
+    {
+        abort_unless($request->user()?->role==='client',401,'Sign in as a customer to apply a promo code.');
+        $data=$request->validate(['code'=>['required','string','max:40'],'items'=>['required','array','min:1'],'items.*.id'=>['required','integer','exists:products,id'],'items.*.quantity'=>['required','integer','min:1']]);
+        return response()->json($checkout->quoteDiscount($data['items'],$request->user(),$data['code']));
+    }
+
     public function index(Request $request): JsonResponse
     {
         $this->admin($request);

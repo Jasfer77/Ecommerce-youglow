@@ -2,6 +2,7 @@ const money = value => new Intl.NumberFormat('en-PH',{style:'currency',currency:
 let cart = JSON.parse(localStorage.getItem('yg-cart') || '{}');
 let checkoutStep = 1;
 let checkoutPaymentMethods=[];
+let appliedPromo=null;
 const $ = selector => document.querySelector(selector);
 let products = [];
 let signedInMember = null;
@@ -52,8 +53,13 @@ function toggleCart(open) { $('#cartDrawer').classList.toggle('open',open); $('#
 function showToast(message) { $('#toast').textContent=message; $('#toast').classList.add('show'); setTimeout(()=>$('#toast').classList.remove('show'),2500); }
 window.addEventListener('message',async event=>{if(event.origin!==location.origin||event.data?.type!=='yg-open-checkout')return;if(!signedInMember){try{const user=await YG_api('/api/auth/me');if(user.role==='client')signedInMember=user;}catch(_){}}$('#checkoutButton').click();requestAnimationFrame(()=>{if(!$('#checkoutModal').classList.contains('open'))return;const panel=$('.checkout-panel');if(panel)panel.scrollTop=0;const address=$('#checkoutForm [name="address"]');if(address)address.focus({preventScroll:true});if(window.parent!==window)window.parent.postMessage({type:'yg-checkout-opened'},location.origin);});});
 function validateCheckoutStep(step){const invalid=$(`.checkout-step[data-step="${step}"]`).querySelector(':invalid');if(!invalid)return true;invalid.reportValidity();return false;}
-function configureReviewFirstCheckout(){document.querySelector('.checkout-progress').innerHTML='<span class="active">1 Verify address</span><span>2 Confirm request</span>';const paymentStep=document.querySelector('.checkout-step[data-step="2"]');paymentStep.innerHTML='<p class="eyebrow">Final verification</p><h2>Confirm your order and address.</h2><p class="checkout-review-intro">Please verify the recipient, contact number, complete address, and landmark. Only after you confirm these details will the order be sent to the administrator.</p><div id="deliveryReview" class="order-review"></div><div id="orderReview" class="order-review"></div><label class="consent"><input required type="checkbox"> I confirm that my order, delivery address, contact details, and landmark are complete and correct.</label>';document.querySelector('.checkout-step[data-step="3"]').remove();}
+function configureReviewFirstCheckout(){document.querySelector('.checkout-progress').innerHTML='<span class="active">1 Verify address</span><span>2 Confirm request</span>';const paymentStep=document.querySelector('.checkout-step[data-step="2"]');paymentStep.innerHTML='<p class="eyebrow">Final verification</p><h2>Confirm your order and address.</h2><p class="checkout-review-intro">Please verify the recipient, contact number, complete address, and landmark. Only after you confirm these details will the order be sent to the administrator.</p><div id="deliveryReview" class="order-review"></div><div id="orderReview" class="order-review"></div><section class="checkout-promo"><label for="promoCode">Promo code</label><div><input id="promoCode" name="promo_code" maxlength="40" autocomplete="off" autocapitalize="characters" placeholder="Enter your promo code"><button id="applyPromo" type="button">Apply</button></div><p id="promoStatus">Discounts are verified for your customer account.</p></section><label class="consent"><input required type="checkbox"> I confirm that my order, delivery address, contact details, and landmark are complete and correct.</label>';document.querySelector('.checkout-step[data-step="3"]').remove();}
 configureReviewFirstCheckout();
+function productsSubtotal(){return Object.entries(cart).reduce((sum,[id,quantity])=>sum+(products.find(product=>product.id===id)?.price||0)*quantity,0);}
+function renderOrderReview(){const subtotal=productsSubtotal(),discount=Number(appliedPromo?.discountAmount||0),total=Math.max(0,subtotal-discount);$('#orderReview').innerHTML=Object.entries(cart).map(([id,quantity])=>{const product=products.find(item=>item.id===id);return `<div class="review-row"><span>${quantity} × ${escapeHtml(product.name)}</span><b>${money(product.price*quantity)}</b></div>`;}).join('')+`<div class="review-row"><span>Delivery fee</span><b>Confirmed by admin after address review</b></div><div class="review-row"><span>Products subtotal</span><b>${money(subtotal)}</b></div>${discount>0?`<div class="review-row promo-discount-row"><span>${escapeHtml(appliedPromo.name)} (${escapeHtml(appliedPromo.code)})</span><b>−${money(discount)}</b></div>`:''}<div class="review-row checkout-total-row"><strong>Order total before delivery</strong><strong>${money(total)}</strong></div>`;}
+async function applyPromoCode(){const input=$('#promoCode'),button=$('#applyPromo'),status=$('#promoStatus'),code=input.value.trim().toUpperCase();input.value=code;if(!code){appliedPromo=null;status.textContent='Enter a promo code first.';status.className='error';renderOrderReview();return false;}button.disabled=true;button.textContent='Checking…';try{appliedPromo=await YG_api('/api/discounts/quote',{method:'POST',body:JSON.stringify({code,items:cartOrderItems()})});status.textContent=`${appliedPromo.name} applied. You save ${money(appliedPromo.discountAmount)}.`;status.className='success';renderOrderReview();return true;}catch(error){appliedPromo=null;status.textContent=error.message;status.className='error';renderOrderReview();return false;}finally{button.disabled=false;button.textContent='Apply';}}
+$('#applyPromo').onclick=applyPromoCode;
+$('#promoCode').addEventListener('input',()=>{if(appliedPromo&&$('#promoCode').value.trim().toUpperCase()!==appliedPromo.code){appliedPromo=null;$('#promoStatus').textContent='Code changed. Select Apply to verify it again.';$('#promoStatus').className='';renderOrderReview();}});
 function showStep(step) {
   checkoutStep=step;
   document.querySelectorAll('.checkout-step').forEach((element,index)=>element.classList.toggle('active',index===step-1));
@@ -62,9 +68,8 @@ function showStep(step) {
   $('#checkoutNext').innerHTML=step===2?'Confirm and message <span>→</span>':'Continue <span>→</span>';
   if(step===2){
     const form=new FormData($('#checkoutForm'));
-    const total=Object.entries(cart).reduce((sum,[id,quantity])=>sum+products.find(product=>product.id===id).price*quantity,0);
     $('#deliveryReview').innerHTML=`<div class="review-row"><span>Recipient</span><b>${escapeHtml(form.get('name')||'')}</b></div><div class="review-row"><span>Mobile number</span><b>${escapeHtml(form.get('phone')||'')}</b></div><div class="review-row"><span>Complete address</span><b>${escapeHtml(form.get('address')||'')}</b></div><div class="review-row"><span>Landmark</span><b>${escapeHtml(form.get('landmark')||'')}</b></div><div class="review-row"><span>Region / postal code</span><b>${escapeHtml(form.get('region')||'')} · ${escapeHtml(form.get('postal')||'')}</b></div>`;
-    $('#orderReview').innerHTML=Object.entries(cart).map(([id,quantity])=>{const product=products.find(item=>item.id===id);return `<div class="review-row"><span>${quantity} × ${product.name}</span><b>${money(product.price*quantity)}</b></div>`;}).join('')+`<div class="review-row"><span>Delivery fee</span><b>Confirmed by admin after address review</b></div><div class="review-row"><strong>Products subtotal</strong><strong>${money(total)}</strong></div>`;
+    renderOrderReview();
   }
 }
 
@@ -89,6 +94,9 @@ $('#checkoutButton').onclick=async()=>{
   toggleCart(false);
   const form=$('#checkoutForm');
   form.reset();
+  appliedPromo=null;
+  $('#promoStatus').textContent='Discounts are verified for your customer account.';
+  $('#promoStatus').className='';
   form.elements.name.value=signedInMember.name||'';
   form.elements.phone.value=signedInMember.phone||'';
   form.elements.email.value=signedInMember.email||'';
@@ -104,9 +112,11 @@ $('#checkoutNext').onclick=async()=>{
     showStep(checkoutStep+1);return;
   }
   if(!$('#checkoutForm').reportValidity())return;
+  const enteredPromo=$('#promoCode').value.trim().toUpperCase();
+  if(enteredPromo&&appliedPromo?.code!==enteredPromo&&!await applyPromoCode())return;
   const formData=new FormData($('#checkoutForm'));
   const items=cartOrderItems();
-  const payload={customer:formData.get('name'),email:formData.get('email'),phone:formData.get('phone'),address:formData.get('address'),landmark:formData.get('landmark'),region:formData.get('region'),postal:formData.get('postal'),items};
+  const payload={customer:formData.get('name'),email:formData.get('email'),phone:formData.get('phone'),address:formData.get('address'),landmark:formData.get('landmark'),region:formData.get('region'),postal:formData.get('postal'),promo_code:appliedPromo?.code||null,items};
   $('#checkoutNext').disabled=true; $('#checkoutNext').textContent='Saving…';
   try {
     await submitOrderRequest(payload);
