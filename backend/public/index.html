@@ -29,7 +29,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preload" as="image" href="assets/landing/wellness-hero-v2.jpg" fetchpriority="high">
   <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Mrs+Saint+Delafield&family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="landing-document.css?v=33" />
+  <link rel="stylesheet" href="landing-document.css?v=34" />
   <link rel="stylesheet" href="page-transition.css?v=1" />
   <style>
     .reveal{opacity:0!important;transform:translateY(24px)!important;transition:opacity .65s ease,transform .65s cubic-bezier(.22,1,.36,1)!important}.reveal.visible{opacity:1!important;transform:translateY(0)!important}.product-grid .reveal:nth-child(2),.feedback-grid .reveal:nth-child(2){transition-delay:.08s!important}.product-grid .reveal:nth-child(3),.feedback-grid .reveal:nth-child(3){transition-delay:.16s!important}.product-grid .reveal:nth-child(4){transition-delay:.24s!important}@media(prefers-reduced-motion:reduce){.reveal{opacity:1!important;transform:none!important;transition:none!important}}
@@ -88,11 +88,11 @@
       <div class="product-grid">
         <article class="product-tile reveal">
           <div class="product-photo"><img src="assets/landing/tirzepatide-15mg.jpg" alt="Tirzepatide 15 mg" loading="lazy" decoding="async"></div>
-          <div><p>Weight management</p><h3 data-mobile-title="Weight Management">Tirzepatide <span>15 mg</span></h3><a href="#" data-product-info="tirzepatide">Learn more <span>→</span></a></div>
+          <div><p>Weight management</p><h3 data-mobile-title="Weight Management">Tirzepatide <span>15 mg</span></h3><a href="#" data-product-info="tirzepatide-15">Learn more <span>→</span></a></div>
         </article>
         <article class="product-tile reveal">
           <div class="product-photo"><img src="assets/landing/tirzepatide-30mg.jpg" alt="Tirzepatide 30 mg" loading="lazy" decoding="async"></div>
-          <div><p>Weight management</p><h3 data-mobile-title="Wellness Essentials">Tirzepatide <span>30 mg</span></h3><a href="#" data-product-info="tirzepatide">Learn more <span>→</span></a></div>
+          <div><p>Weight management</p><h3 data-mobile-title="Wellness Essentials">Tirzepatide <span>30 mg</span></h3><a href="#" data-product-info="tirzepatide-30">Learn more <span>→</span></a></div>
         </article>
         <article class="product-tile reveal">
           <div class="product-photo"><img src="assets/landing/ghk-cu-50mg.jpg" alt="GHK-Cu 50 mg" loading="lazy" decoding="async"></div>
@@ -114,6 +114,18 @@
       </div>
       <div class="trust-grid feedback-grid" id="customerFeedback" aria-live="polite">
         <article class="feedback-loading"><span>★</span><h3>Customer feedback</h3><p>Loading recent customer experiences…</p></article>
+      </div>
+    </section>
+
+    <section class="transaction-proof" aria-labelledby="transactionProofTitle">
+      <div class="transaction-proof-copy reveal">
+        <p class="eyebrow">TRANSACTION TRANSPARENCY</p>
+        <h2 id="transactionProofTitle">Proof of Payment Transactions</h2>
+        <p>View selected verified payments and completed transaction confirmations from You Glow Cebu through our official viewer-only archive.</p>
+      </div>
+      <div class="transaction-proof-action reveal">
+        <p><strong>Official Google Drive archive</strong><span>Customer names, account details, addresses, and other private information are redacted before publication.</span></p>
+        <a class="button transaction-proof-button" href="https://drive.google.com/drive/folders/1zB9gC5c_MdbvALlWW-KCtFZZYWkHqVdw?usp=sharing" target="_blank" rel="noopener noreferrer">View payment proofs <span>↗</span></a>
       </div>
     </section>
 
@@ -211,6 +223,6 @@
     <p class="copyright">© <span id="year"></span> You Glow Cebu Beauty &amp; Wellness</p>
   </footer>
   <script src="page-transition.js?v=4"></script>
-  <script src="script.js?v=13"></script>
+  <script src="script.js?v=14"></script>
 </body>
 </html>
