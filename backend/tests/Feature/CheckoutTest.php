@@ -161,6 +161,14 @@ class CheckoutTest extends TestCase
             ->assertOk()
             ->assertHeader('Content-Type','image/jpeg');
 
+        // Browser <img> requests cannot send X-YG-Portal, so the read-only
+        // portal hint must resolve the isolated administrator session.
+        $this->app['auth']->forgetGuards();
+        $this->withSession(['admin_user_id'=>$admin->id])
+            ->get($payment->json('receiptUrl').'?portal=admin')
+            ->assertOk()
+            ->assertHeader('Content-Type','image/jpeg');
+
         $receiptPath=Order::findOrFail($orderId)->receipt_path;
         $this->assertStringStartsWith("\xFF\xD8\xFF",Storage::disk('local')->get($receiptPath));
     }
