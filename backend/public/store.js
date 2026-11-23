@@ -83,7 +83,6 @@ if(new URLSearchParams(location.search).get('cart')==='open'){
 function cartOrderItems(){return Object.entries(cart).map(([id,quantity])=>{const product=products.find(item=>item.id===id);return {id,name:product.name,quantity,price:product.price};});}
 async function submitOrderRequest(payload){
   const saved=await YG_api('/api/orders',{method:'POST',body:JSON.stringify(payload)});
-  await YG_api('/api/messages',{method:'POST',body:JSON.stringify({text:`I verified the recipient, contact number, complete delivery address, and landmark for order ${saved.number}. Please review the order and advise the delivery fee.`})});
   cart={};saveCart();$('#checkoutModal').classList.remove('open');showToast(`Order ${saved.number} sent for review`);
   setTimeout(()=>{if(window.parent!==window)window.parent.postMessage({type:'yg-open-messages',order:saved.number},location.origin);else location.href=`/account?panel=messages&order=${encodeURIComponent(saved.number)}`;},350);
   return saved;
@@ -120,14 +119,17 @@ $('#checkoutNext').onclick=async()=>{
   $('#checkoutNext').disabled=true; $('#checkoutNext').textContent='Saving…';
   try {
     await submitOrderRequest(payload);
-  } catch(error) { showToast(error.message||'Could not save the order. Please try again.'); }
+  } catch(error) {
+    if(/stock/i.test(error.message||''))await initializeStore();
+    showToast(error.message||'Could not save the order. Please try again.');
+  }
   finally { $('#checkoutNext').disabled=false; $('#checkoutNext').innerHTML='Confirm and message <span>→</span>'; }
 };
 async function initializeStore(){
   try{
     const documentOrder=['Tirzepatide 15 mg','Tirzepatide 30 mg','GHK-Cu 50 mg','NAD+ 50 mg'];
     products=(await YG_api('/api/products')).filter(product=>product.isActive!==false).sort((a,b)=>documentOrder.indexOf(a.name)-documentOrder.indexOf(b.name));
-    Object.keys(cart).forEach(id=>{if(!products.some(product=>product.id===id))delete cart[id];});
+    Object.keys(cart).forEach(id=>{if(!products.some(product=>product.id===id&&product.inStock))delete cart[id];});
     localStorage.setItem('yg-cart',JSON.stringify(cart));
     renderProducts();renderCart();
   }catch(error){

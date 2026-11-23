@@ -12,6 +12,7 @@ use App\Services\ImageStorageService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 class OrderController extends Controller
@@ -29,6 +30,15 @@ class OrderController extends Controller
         abort_unless($request->user()?->role==='client',401,'Please sign in as a customer before confirming your order.');
         $data=$request->validate(['customer'=>['required','string','max:120'],'email'=>['required','email'],'phone'=>['required','string','max:32'],'address'=>['required','string','max:1000'],'landmark'=>['required','string','max:255'],'region'=>['nullable','string','max:100'],'postal'=>['nullable','string','max:20'],'promo_code'=>['nullable','string','max:40'],'items'=>['required','array','min:1'],'items.*.id'=>['required','integer','exists:products,id'],'items.*.quantity'=>['required','integer','min:1']]);
         $order=$checkout->create($data,$request->user());
+        $conversation=Conversation::firstOrCreate(
+            ['user_id'=>$request->user()->id,'subject'=>'Order support'],
+            ['status'=>'open']
+        );
+        Message::create([
+            'conversation_id'=>$conversation->id,
+            'sender_id'=>$request->user()->id,
+            'body'=>'I verified the recipient, contact number, complete delivery address, and landmark for order '.$order->order_number.'. Please review the order and advise the delivery fee.',
+        ]);
         $notifications->adminsForOrder($order, 'New order requires review', $order->customer_name.' placed a new order. Review the items and confirm the delivery fee.');
         return response()->json($this->format($order),201);
     }
@@ -69,6 +79,7 @@ class OrderController extends Controller
                     }
                     $locked->update($data);
                 });
+                Cache::forget('public.products.v2');
             } else $order->update($data);
             $updated=$order->fresh(['items','user']);
             $notifications->customerForOrder($updated, 'Your order has been updated', $this->customerOrderUpdateMessage($updated));
@@ -101,6 +112,7 @@ class OrderController extends Controller
                     'body'=>'I cancelled order '.$lockedOrder->order_number.'. The order is now cancelled and its reserved products were returned to stock.',
                 ]);
             });
+            Cache::forget('public.products.v2');
 
             $updated=$order->fresh(['items','user']);
             $notifications->adminsForOrder($updated, 'Customer cancelled an order', $updated->customer_name.' cancelled the pending order. Reserved stock was restored.');
@@ -139,7 +151,6 @@ class OrderController extends Controller
         $method=PaymentMethod::whereIn('code',['gcash','bank_transfer'])->where('name',$data['payment'])->where('is_active',true)->first();
         if(!$method) return response()->json(['message'=>'The selected payment method is not available.'],422);
         if($method->requires_receipt&&!$request->hasFile('receipt')) return response()->json(['message'=>'Please upload proof of payment.'],422);
-        if($method->requires_receipt&&blank($data['payment_reference']??null)) return response()->json(['message'=>'Please enter the receipt reference number.'],422);
         $receipt=$request->hasFile('receipt')?$images->receipt($request->file('receipt')):null;
         $order->update(['payment_method'=>$method->name,'receipt_path'=>$receipt,'payment_reference'=>$data['payment_reference']??null,'payment_status'=>'pending_verification','workflow_status'=>'payment_verification']);
         $updated=$order->fresh(['items','user']);
@@ -151,8 +162,9 @@ class OrderController extends Controller
     {
         $user=$request->user();
         abort_unless($user&&($user->role==='admin'||(int)$order->user_id===(int)$user->id),403);
-        abort_unless($order->receipt_path&&Storage::disk('local')->exists($order->receipt_path),404);
-        $disk=Storage::disk('local');
+        abort_unless($order->receipt_path,404);
+        $disk=Storage::disk('local')->exists($order->receipt_path)?Storage::disk('local'):Storage::disk('public');
+        abort_unless($disk->exists($order->receipt_path),404);
         $path=$disk->path($order->receipt_path);
         $image=@getimagesize($path);
         $mime=is_array($image) ? ($image['mime']??null) : null;
@@ -194,7 +206,8 @@ class OrderController extends Controller
     {
         $status=$o->delivery_status==='cancelled'?'cancelled':($o->payment_status==='pending_verification'?'Pending verification':$o->delivery_status);
         $feedback=$o->feedback?->first();
-        return ['id'=>$o->id,'userId'=>$o->user_id,'number'=>$o->order_number,'customer'=>$o->customer_name ?: $o->user?->name,'email'=>$o->customer_email,'phone'=>$o->customer_phone,'subtotal'=>(float)$o->subtotal,'discountAmount'=>(float)$o->discount_amount,'shippingAmount'=>(float)$o->shipping_amount,'total'=>(float)$o->total_amount,'payment'=>$o->payment_method,'paymentStatus'=>$o->payment_status,'deliveryStatus'=>$o->delivery_status,'workflowStatus'=>$o->workflow_status,'deliveryFeePayment'=>$o->delivery_fee_payment,'paymentReference'=>$o->payment_reference,'receiptUrl'=>$o->receipt_path?"/api/orders/{$o->id}/receipt":null,'address'=>$o->shipping_address,'status'=>str($o->workflow_status?:$status)->replace('_',' ')->title()->toString(),'date'=>$o->created_at?->format('M j, Y'),'completedAt'=>$o->updated_at?->toIso8601String(),'completedTime'=>$o->updated_at?->format('M j, Y · g:i A'),'isArchived'=>(bool)$o->archived_at,'archivedAt'=>$o->archived_at?->format('M j, Y · g:i A'),'items'=>$o->items?->map(fn($i)=>['name'=>$i->product_name,'quantity'=>$i->quantity,'price'=>(float)$i->unit_price,'lineTotal'=>(float)$i->line_total]),'feedback'=>$feedback?['rating'=>$feedback->rating,'comment'=>$feedback->comment,'submittedAt'=>$feedback->submitted_at?->format('M j, Y')]:null];
+        $portal=request()->user()?->role==='admin'?'admin':'customer';
+        return ['id'=>$o->id,'userId'=>$o->user_id,'number'=>$o->order_number,'customer'=>$o->customer_name ?: $o->user?->name,'email'=>$o->customer_email,'phone'=>$o->customer_phone,'subtotal'=>(float)$o->subtotal,'discountAmount'=>(float)$o->discount_amount,'shippingAmount'=>(float)$o->shipping_amount,'total'=>(float)$o->total_amount,'payment'=>$o->payment_method,'paymentStatus'=>$o->payment_status,'deliveryStatus'=>$o->delivery_status,'workflowStatus'=>$o->workflow_status,'deliveryFeePayment'=>$o->delivery_fee_payment,'paymentReference'=>$o->payment_reference,'receiptUrl'=>$o->receipt_path?"/api/orders/{$o->id}/receipt?portal={$portal}":null,'address'=>$o->shipping_address,'status'=>str($o->workflow_status?:$status)->replace('_',' ')->title()->toString(),'date'=>$o->created_at?->format('M j, Y'),'completedAt'=>$o->updated_at?->toIso8601String(),'completedTime'=>$o->updated_at?->format('M j, Y · g:i A'),'isArchived'=>(bool)$o->archived_at,'archivedAt'=>$o->archived_at?->format('M j, Y · g:i A'),'items'=>$o->items?->map(fn($i)=>['name'=>$i->product_name,'quantity'=>$i->quantity,'price'=>(float)$i->unit_price,'lineTotal'=>(float)$i->line_total]),'feedback'=>$feedback?['rating'=>$feedback->rating,'comment'=>$feedback->comment,'submittedAt'=>$feedback->submitted_at?->format('M j, Y')]:null];
     }
 
     private function customerOrderUpdateMessage(Order $order): string

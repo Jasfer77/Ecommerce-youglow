@@ -22,7 +22,10 @@ class ResolvePortalUser
 
         if (in_array($portal, ['admin', 'customer'], true)) {
             $sessionKey = $portal === 'admin' ? 'admin_user_id' : 'customer_user_id';
-            $request->setUserResolver(fn () => User::find($request->session()->get($sessionKey)));
+            $sessionUserId = $request->session()->get($sessionKey);
+            if ($sessionUserId) {
+                $request->setUserResolver(fn () => User::find($sessionUserId));
+            }
         }
 
         return $next($request);

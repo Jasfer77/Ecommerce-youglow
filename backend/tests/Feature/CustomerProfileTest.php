@@ -29,7 +29,7 @@ class CustomerProfileTest extends TestCase
 
         $response->assertOk()
             ->assertJsonPath('landmark','Blue gate beside the pharmacy')
-            ->assertJsonPath('profilePhotoUrl','/api/auth/profile-photo');
+            ->assertJsonPath('profilePhotoUrl','/api/auth/profile-photo?portal=customer');
 
         $customer->refresh();
         Storage::disk('local')->assertExists($customer->profile_photo_path);

@@ -23,15 +23,29 @@ class ProductController extends Controller
             if(!$isAdmin) $query->where('is_active',true);
             return $query->orderBy('id')->get()->map(fn(Product $product)=>$this->format($product, $isAdmin));
         };
-        $products=$isAdmin?$load():Cache::remember('public.products.v1',now()->addMinutes(5),$load);
+        $products=$isAdmin?$load():Cache::remember('public.products.v2',now()->addMinutes(5),$load);
         return response()->json($products)->header('Cache-Control',$isAdmin?'private, no-store':'public, max-age=60, stale-while-revalidate=300');
+    }
+
+    public function image(Product $product)
+    {
+        $image=$product->images[0]??null;
+        abort_unless($image&&Storage::disk('public')->exists($image),404);
+        $path=Storage::disk('public')->path($image);
+        $mime=@mime_content_type($path) ?: 'image/jpeg';
+        abort_unless(in_array($mime,['image/jpeg','image/png','image/webp'],true),404);
+        return response()->file($path,[
+            'Content-Type'=>$mime,
+            'Content-Disposition'=>'inline',
+            'Cache-Control'=>'public, max-age=86400',
+        ]);
     }
 
     public function store(Request $request): JsonResponse
     {
         $this->admin($request);
         $product=DB::transaction(fn()=> $this->persist(new Product,$this->validated($request),$request,app(ImageStorageService::class)));
-        Cache::forget('public.products.v1');
+        Cache::forget('public.products.v2');
         return response()->json($this->format($product),201);
     }
 
@@ -39,7 +53,7 @@ class ProductController extends Controller
     {
         $this->admin($request);
         $product=DB::transaction(fn()=> $this->persist($product,$this->validated($request,$product),$request,app(ImageStorageService::class)));
-        Cache::forget('public.products.v1');
+        Cache::forget('public.products.v2');
         return response()->json($this->format($product));
     }
 
@@ -48,7 +62,7 @@ class ProductController extends Controller
         $this->admin($request);
         $data=$request->validate(['isActive'=>['required','boolean']]);
         $product->update(['is_active'=>$data['isActive']]);
-        Cache::forget('public.products.v1');
+        Cache::forget('public.products.v2');
         return response()->json($this->format($product->load(['category','stocks'])));
     }
 
@@ -58,7 +72,7 @@ class ProductController extends Controller
         if($product->orderItems()->exists()) return response()->json(['message'=>'This product has sales history. Hide it instead of deleting it.'],409);
         foreach($product->images??[] as $image) Storage::disk('public')->delete($image);
         $product->delete();
-        Cache::forget('public.products.v1');
+        Cache::forget('public.products.v2');
         return response()->json(['ok'=>true]);
     }
 
@@ -94,7 +108,7 @@ class ProductController extends Controller
     {
         $product->loadMissing(['category','stocks'=>fn($q)=>$q->orderBy('expiry_date')]); $stock=$product->stocks->first();
         $image=$product->images[0]??null;
-        $payload=['id'=>(string)$product->id,'name'=>$product->name,'short'=>$product->attributes['short']??$product->sku,'category'=>$product->category->name,'price'=>(float)$product->price,'tone'=>$product->attributes['tone']??'peach','benefit'=>$product->description,'imageUrl'=>$image?Storage::disk('public')->url($image):null,'inStock'=>$product->stocks->sum('quantity')>0];
+        $payload=['id'=>(string)$product->id,'name'=>$product->name,'short'=>$product->attributes['short']??$product->sku,'category'=>$product->category->name,'price'=>(float)$product->price,'tone'=>$product->attributes['tone']??'peach','benefit'=>$product->description,'imageUrl'=>$image?route('products.image',$product,absolute:false):null,'inStock'=>$product->stocks->sum('quantity')>0];
         if($includeInventory) $payload+=['sku'=>$product->sku,'weight_kg'=>(float)$product->weight_kg,'stock'=>(int)$product->stocks->sum('quantity'),'batch'=>$stock?->batch_number??'—','expiry'=>$stock?->expiry_date?->format('Y-m-d'),'isActive'=>$product->is_active];
         return $payload;
     }

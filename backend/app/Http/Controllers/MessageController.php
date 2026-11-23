@@ -124,9 +124,11 @@ class MessageController extends Controller
         abort_unless($request->user(),401);
         $message->loadMissing('conversation');
         abort_unless($request->user()->role==='admin'||$message->conversation->user_id===$request->user()->id,403);
-        abort_unless($message->attachment_path&&Storage::disk('local')->exists($message->attachment_path),404);
+        abort_unless($message->attachment_path,404);
+        $disk=Storage::disk('local')->exists($message->attachment_path)?Storage::disk('local'):Storage::disk('public');
+        abort_unless($disk->exists($message->attachment_path),404);
 
-        return Storage::disk('local')->response(
+        return $disk->response(
             $message->attachment_path,
             $message->attachment_name ?: 'message-photo.jpg',
             ['Content-Type'=>$message->attachment_mime ?: 'image/jpeg','Cache-Control'=>'private, no-store, max-age=0']
@@ -135,12 +137,13 @@ class MessageController extends Controller
 
     private function payload(Message $message): array
     {
+        $portal=request()->user()?->role==='admin'?'admin':'customer';
         return [
             'id'=>$message->id,
             'from'=>$message->sender->role==='admin'?'support':'customer',
             'text'=>$message->body,
             'attachment'=>$message->attachment_path ? [
-                'url'=>route('messages.attachment',$message,absolute:false),
+                'url'=>route('messages.attachment',$message,absolute:false).'?portal='.$portal,
                 'name'=>$message->attachment_name ?: 'Photo attachment',
                 'mime'=>$message->attachment_mime ?: 'image/jpeg',
             ] : null,

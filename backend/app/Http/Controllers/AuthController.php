@@ -139,9 +139,11 @@ class AuthController extends Controller
     {
         $user=$request->user();
         abort_unless($user,401);
-        abort_unless($user->profile_photo_path&&Storage::disk('local')->exists($user->profile_photo_path),404);
+        abort_unless($user->profile_photo_path,404);
+        $disk=Storage::disk('local')->exists($user->profile_photo_path)?Storage::disk('local'):Storage::disk('public');
+        abort_unless($disk->exists($user->profile_photo_path),404);
 
-        $response=response()->file(Storage::disk('local')->path($user->profile_photo_path),[
+        $response=response()->file($disk->path($user->profile_photo_path),[
             'Content-Type'=>'image/jpeg',
             'Content-Disposition'=>'inline; filename="profile-photo.jpg"',
         ]);
@@ -161,6 +163,6 @@ class AuthController extends Controller
     private function member(User $user): array
     {
         $completed=$user->orders()->where('delivery_status','delivered')->count();
-        return ['id'=>'C-'.$user->id,'name'=>$user->name,'email'=>$user->email,'phone'=>$user->phone,'address'=>$user->address,'landmark'=>$user->landmark,'profilePhotoUrl'=>$user->profile_photo_path?'/api/auth/profile-photo':null,'role'=>$user->role,'marketing'=>$user->marketing_consent,'completedOrders'=>$completed,'totalSpend'=>(float)$user->orders()->where('delivery_status','delivered')->sum('total_amount'),'segment'=>$user->customerSegment()];
+        return ['id'=>'C-'.$user->id,'name'=>$user->name,'email'=>$user->email,'phone'=>$user->phone,'address'=>$user->address,'landmark'=>$user->landmark,'profilePhotoUrl'=>$user->profile_photo_path?'/api/auth/profile-photo?portal=customer':null,'role'=>$user->role,'marketing'=>$user->marketing_consent,'completedOrders'=>$completed,'totalSpend'=>(float)$user->orders()->where('delivery_status','delivered')->sum('total_amount'),'segment'=>$user->customerSegment()];
     }
 }

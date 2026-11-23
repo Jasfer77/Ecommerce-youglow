@@ -18,9 +18,56 @@ class CheckoutTest extends TestCase
 {
     use DatabaseTransactions;
 
+    public function test_order_is_rejected_when_product_has_no_stock(): void
+    {
+        Notification::fake();
+        $customer=User::where('role','client')->firstOrFail();
+        $product=Product::where('is_active',true)->firstOrFail();
+        $product->stocks()->update(['quantity'=>0]);
+        $ordersBefore=Order::count();
+
+        $this->actingAs($customer)->postJson('/api/orders',[
+            'customer'=>$customer->name,
+            'email'=>$customer->email,
+            'phone'=>$customer->phone,
+            'address'=>$customer->address?:'Cebu City',
+            'landmark'=>'Near Cebu City Hall',
+            'items'=>[['id'=>$product->id,'quantity'=>1]],
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors('items');
+
+        $this->assertSame($ordersBefore,Order::count());
+    }
+
+    public function test_repeated_product_lines_cannot_exceed_combined_available_stock(): void
+    {
+        Notification::fake();
+        $customer=User::where('role','client')->firstOrFail();
+        $product=Product::where('is_active',true)->firstOrFail();
+        $product->stocks()->update(['quantity'=>0]);
+        $product->stocks()->firstOrFail()->update(['quantity'=>1]);
+        $ordersBefore=Order::count();
+
+        $this->actingAs($customer)->postJson('/api/orders',[
+            'customer'=>$customer->name,
+            'email'=>$customer->email,
+            'phone'=>$customer->phone,
+            'address'=>$customer->address?:'Cebu City',
+            'landmark'=>'Near Cebu City Hall',
+            'items'=>[
+                ['id'=>$product->id,'quantity'=>1],
+                ['id'=>$product->id,'quantity'=>1],
+            ],
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors('items');
+
+        $this->assertSame(1,(int)$product->stocks()->sum('quantity'));
+        $this->assertSame($ordersBefore,Order::count());
+    }
+
     public function test_customer_payment_options_are_limited_to_gcash_and_bpi(): void
     {
-        Cache::forget('public.payment-methods.v1');
+        Cache::forget('public.payment-methods.v2');
         $customer=User::where('email','mia@example.com')->firstOrFail();
 
         $this->actingAs($customer)->getJson('/api/payment-methods')
@@ -57,6 +104,10 @@ class CheckoutTest extends TestCase
             ->assertJsonPath('workflowStatus', 'awaiting_admin_review')
             ->assertJsonPath('shippingAmount', 0);
 
+        $this->assertTrue(Message::where('sender_id',$customer->id)
+            ->where('body','like','%'.$response->json('number').'%')
+            ->where('body','like','%advise the delivery fee%')
+            ->exists());
         Notification::assertSentTo($admin, OrderActivityNotification::class);
     }
 
@@ -155,7 +206,7 @@ class CheckoutTest extends TestCase
             'receipt'=>UploadedFile::fake()->image('receipt.jpg'),
         ])->assertOk()
             ->assertJsonPath('paymentReference','GCASH-987654321')
-            ->assertJsonPath('receiptUrl',"/api/orders/{$orderId}/receipt");
+            ->assertJsonPath('receiptUrl',"/api/orders/{$orderId}/receipt?portal=customer");
 
         $preview=$this->actingAs($admin)->get($payment->json('receiptUrl'))
             ->assertOk()
@@ -164,13 +215,44 @@ class CheckoutTest extends TestCase
         // Browser <img> requests cannot send X-YG-Portal, so the read-only
         // portal hint must resolve the isolated administrator session.
         $this->app['auth']->forgetGuards();
+        $adminReceiptUrl=str($payment->json('receiptUrl'))->before('?')->append('?portal=admin')->toString();
         $this->withSession(['admin_user_id'=>$admin->id])
-            ->get($payment->json('receiptUrl').'?portal=admin')
+            ->get($adminReceiptUrl)
             ->assertOk()
             ->assertHeader('Content-Type','image/jpeg');
 
         $receiptPath=Order::findOrFail($orderId)->receipt_path;
         $this->assertStringStartsWith("\xFF\xD8\xFF",Storage::disk('local')->get($receiptPath));
+    }
+
+    public function test_customer_can_submit_payment_without_a_reference_number(): void
+    {
+        Storage::fake('local');
+        Notification::fake();
+        $customer=User::where('email','mia@example.com')->firstOrFail();
+        $admin=User::where('role','admin')->firstOrFail();
+        $product=Product::where('is_active',true)
+            ->whereHas('stocks',fn($query)=>$query->where('quantity','>',0))
+            ->firstOrFail();
+
+        $placed=$this->actingAs($customer)->post('/api/orders',[
+            'customer'=>$customer->name,'email'=>$customer->email,'phone'=>$customer->phone,
+            'address'=>$customer->address ?: 'Cebu City','landmark'=>'Near Cebu City Hall',
+            'items'=>[['id'=>$product->id,'quantity'=>1]],
+        ])->assertCreated();
+        $orderId=$placed->json('id');
+
+        $this->actingAs($admin)->patch("/api/orders/{$orderId}",['shipping_amount'=>150])->assertOk();
+        $this->actingAs($customer)->post("/api/orders/{$orderId}/confirm-delivery",[
+            'delivery_fee_payment'=>'included','address'=>$customer->address ?: 'Cebu City',
+        ])->assertOk();
+        $this->actingAs($admin)->patch("/api/orders/{$orderId}",['workflow_status'=>'awaiting_payment'])->assertOk();
+
+        $this->actingAs($customer)->post("/api/orders/{$orderId}/payment",[
+            'payment'=>'GCash','receipt'=>UploadedFile::fake()->image('receipt.jpg'),
+        ])->assertOk()
+            ->assertJsonPath('paymentReference',null)
+            ->assertJsonPath('workflowStatus','payment_verification');
     }
 
     public function test_admin_can_archive_and_restore_an_order_without_changing_its_status(): void

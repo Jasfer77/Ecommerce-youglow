@@ -6,6 +6,7 @@ use App\Models\Discount;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -28,13 +29,18 @@ class CheckoutService
 
     public function create(array $data, $user=null, ?string $receiptPath=null): Order
     {
-        return DB::transaction(function() use($data,$user,$receiptPath) {
+        $order=DB::transaction(function() use($data,$user,$receiptPath) {
             $subtotal=0; $lines=[];
+            $requested=[];
             foreach($data['items'] as $item) {
-                $product=Product::whereKey($item['id'])->where('is_active',true)->lockForUpdate()->firstOrFail();
+                $productId=(int)$item['id'];
+                $requested[$productId]=($requested[$productId]??0)+(int)$item['quantity'];
+            }
+            foreach($requested as $productId=>$quantity) {
+                $product=Product::whereKey($productId)->where('is_active',true)->lockForUpdate()->firstOrFail();
                 $stocks=$product->stocks()->where('quantity','>',0)->orderBy('expiry_date')->lockForUpdate()->get();
-                $quantity=(int)$item['quantity']; $available=(int)$stocks->sum('quantity');
-                if($quantity<1 || $quantity>$available) throw ValidationException::withMessages(['items'=>"Insufficient stock for {$product->name}."]);
+                $available=(int)$stocks->sum('quantity');
+                if($quantity<1 || $quantity>$available) throw ValidationException::withMessages(['items'=>"Insufficient stock for {$product->name}. Only {$available} available."]);
                 $line=(float)$product->price*$quantity; $subtotal+=$line; $lines[]=[$product,$stocks,$quantity,$line];
             }
             $discount=null; $discountAmount=0;
@@ -49,6 +55,8 @@ class CheckoutService
             if($discount) DB::table('discount_user')->where('discount_id',$discount->id)->where('user_id',$user->id)->update(['times_used'=>DB::raw('times_used + 1'),'last_used_at'=>now(),'updated_at'=>now()]);
             return $order->load('items');
         });
+        Cache::forget('public.products.v2');
+        return $order;
     }
 
     private function resolveDiscount(?User $user, string $code, float $subtotal, bool $lock=false): array
