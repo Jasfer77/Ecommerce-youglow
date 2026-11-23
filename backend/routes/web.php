@@ -91,7 +91,7 @@ XML;
 
 Route::get('/account', function () {
     $html = file_get_contents(public_path('account.html'));
-    $html = str_replace(['account-modern.css?v=35','account.js?v=61','data.js?v=10','styles.css'], ['account-modern.css?v=62','account.js?v=65','data.js?v=12','styles.css?v=3'], $html);
+    $html = str_replace(['account-modern.css?v=35','account.js?v=61','data.js?v=10','styles.css'], ['account-modern.css?v=63','account.js?v=66','data.js?v=12','styles.css?v=3'], $html);
     return response($html, 200, [
         'Content-Type' => 'text/html; charset=UTF-8',
         'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
