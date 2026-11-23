@@ -53,6 +53,33 @@ function toggleCart(open) { $('#cartDrawer').classList.toggle('open',open); $('#
 function showToast(message) { $('#toast').textContent=message; $('#toast').classList.add('show'); setTimeout(()=>$('#toast').classList.remove('show'),2500); }
 window.addEventListener('message',async event=>{if(event.origin!==location.origin||event.data?.type!=='yg-open-checkout')return;if(!signedInMember){try{const user=await YG_api('/api/auth/me');if(user.role==='client')signedInMember=user;}catch(_){}}$('#checkoutButton').click();requestAnimationFrame(()=>{if(!$('#checkoutModal').classList.contains('open'))return;const panel=$('.checkout-panel');if(panel)panel.scrollTop=0;const address=$('#checkoutForm [name="address"]');if(address)address.focus({preventScroll:true});if(window.parent!==window)window.parent.postMessage({type:'yg-checkout-opened'},location.origin);});});
 function validateCheckoutStep(step){const invalid=$(`.checkout-step[data-step="${step}"]`).querySelector(':invalid');if(!invalid)return true;invalid.reportValidity();return false;}
+function updateSavedDeliveryChoice(useSaved){
+  const choice=$('#savedDeliveryChoice');
+  const toggle=$('#useSavedDelivery');
+  const address=$('#checkoutForm [name="address"]');
+  const landmark=$('#checkoutForm [name="landmark"]');
+  const hasSaved=Boolean(signedInMember?.address?.trim()&&signedInMember?.landmark?.trim());
+  choice.hidden=!hasSaved;
+  if(!hasSaved){
+    toggle.checked=false;
+    address.readOnly=false;
+    landmark.readOnly=false;
+    choice.classList.remove('active');
+    return;
+  }
+  toggle.checked=useSaved;
+  if(useSaved){
+    address.value=signedInMember.address;
+    landmark.value=signedInMember.landmark;
+  }else{
+    address.value='';
+    landmark.value='';
+  }
+  address.readOnly=useSaved;
+  landmark.readOnly=useSaved;
+  choice.classList.toggle('active',useSaved);
+}
+$('#useSavedDelivery').onchange=event=>updateSavedDeliveryChoice(event.currentTarget.checked);
 function configureReviewFirstCheckout(){document.querySelector('.checkout-progress').innerHTML='<span class="active">1 Verify address</span><span>2 Confirm request</span>';const paymentStep=document.querySelector('.checkout-step[data-step="2"]');paymentStep.innerHTML='<p class="eyebrow">Final verification</p><h2>Confirm your order and address.</h2><p class="checkout-review-intro">Please verify the recipient, contact number, complete address, and landmark. Only after you confirm these details will the order be sent to the administrator.</p><div id="deliveryReview" class="order-review"></div><div id="orderReview" class="order-review"></div><section class="checkout-promo"><label for="promoCode">Promo code</label><div><input id="promoCode" name="promo_code" maxlength="40" autocomplete="off" autocapitalize="characters" placeholder="Enter your promo code"><button id="applyPromo" type="button">Apply</button></div><p id="promoStatus">Discounts are verified for your customer account.</p></section><label class="consent"><input required type="checkbox"> I confirm that my order, delivery address, contact details, and landmark are complete and correct.</label>';document.querySelector('.checkout-step[data-step="3"]').remove();}
 configureReviewFirstCheckout();
 function productsSubtotal(){return Object.entries(cart).reduce((sum,[id,quantity])=>sum+(products.find(product=>product.id===id)?.price||0)*quantity,0);}
@@ -100,6 +127,8 @@ $('#checkoutButton').onclick=async()=>{
   form.elements.phone.value=signedInMember.phone||'';
   form.elements.email.value=signedInMember.email||'';
   form.elements.address.value=signedInMember.address||'';
+  form.elements.landmark.value=signedInMember.landmark||'';
+  updateSavedDeliveryChoice(Boolean(signedInMember.address?.trim()&&signedInMember.landmark?.trim()));
   $('#checkoutAccountNote').innerHTML='<div><b>Verify before sending</b><small>Your order will not reach the administrator until you confirm the address and landmark.</small></div><a href="/account?panel=profile">Update profile</a>';
   $('#checkoutModal').classList.add('open');
   showStep(1);

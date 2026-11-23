@@ -262,3 +262,13 @@ html.inside-customer-account .checkout-panel{width:min(820px,calc(100% - 16px));
 html.inside-customer-account .checkout-step.active{animation:checkout-focus-in .24s ease both}
 @keyframes checkout-focus-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @media(max-width:560px){html.inside-customer-account .checkout-modal{align-items:center;padding:10px}html.inside-customer-account .checkout-panel{height:auto;max-height:calc(100dvh - 20px);border-radius:18px}}
+
+/* Returning customers can reuse their saved delivery details. */
+.saved-delivery-choice{display:flex;align-items:flex-start;gap:12px;margin:16px 0 20px;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:#fff;cursor:pointer}
+.saved-delivery-choice[hidden]{display:none}
+.saved-delivery-choice.active{border-color:#b98b56;background:#faf3e9}
+.saved-delivery-choice input{width:18px;height:18px;margin:2px 0 0;accent-color:#8d5d3b}
+.saved-delivery-choice span{display:grid;gap:3px}
+.saved-delivery-choice b{color:#402c23;font-size:13px;font-weight:600}
+.saved-delivery-choice small{color:#75645a;font-size:11px;line-height:1.45}
+.form-grid input[readonly],.form-grid textarea[readonly]{background:#f6f0e9;color:#4b3a31;cursor:not-allowed}

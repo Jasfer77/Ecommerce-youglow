@@ -72,7 +72,7 @@
         />
         <link rel="stylesheet" href="styles.css" />
         <link rel="stylesheet" href="page-transition.css?v=1" />
-        <link rel="stylesheet" href="store.css?v=40" />
+        <link rel="stylesheet" href="store.css?v=41" />
         <link rel="stylesheet" href="uniform-interface.css?v=11" />
     </head>
     <body class="store-page">
@@ -186,6 +186,20 @@
                             </div>
                             <a href="/account">Sign in</a>
                         </div>
+                        <label
+                            class="saved-delivery-choice"
+                            id="savedDeliveryChoice"
+                            hidden
+                        >
+                            <input type="checkbox" id="useSavedDelivery" />
+                            <span>
+                                <b>Use my saved delivery address and landmark</b>
+                                <small
+                                    >Keep the delivery details saved in my
+                                    customer profile.</small
+                                >
+                            </span>
+                        </label>
                         <div class="form-grid">
                             <label
                                 >Full name<input
@@ -303,6 +317,6 @@
         <div class="toast" id="toast"></div>
         <script src="page-transition.js?v=4"></script>
         <script src="data.js?v=12"></script>
-        <script src="store.js?v=35"></script>
+        <script src="store.js?v=36"></script>
     </body>
 </html>
