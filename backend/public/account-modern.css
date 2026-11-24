@@ -762,3 +762,29 @@
 .message-attachment-control{position:relative;display:flex;flex:0 0 auto;align-items:center}.account-page #customerMessageForm .message-attachment-toggle{position:relative;width:44px!important;min-width:44px!important;height:44px!important;padding:0!important;border:1px solid rgba(67,43,33,.18)!important;border-radius:50%!important;background:#fff!important;color:#432b21!important;font:400 1.55rem/1 Arial,sans-serif!important;box-shadow:none!important}.account-page #customerMessageForm .message-attachment-toggle::before{display:none!important}.account-page #customerMessageForm .message-attachment-toggle:hover{background:#f5ede5!important}.message-attachment-control.has-photo .message-attachment-toggle{border-color:#a36c44!important;background:#f1dfcf!important}.message-attachment-control.has-photo .message-attachment-toggle::after{content:"";position:absolute;top:3px;right:3px;width:7px;height:7px;border-radius:50%;background:#a36c44}.message-attachment-control .message-photo-button{position:absolute;right:0;bottom:52px;display:flex;width:112px;height:48px;padding:0 12px;gap:8px;border-radius:12px;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(6px) scale(.96);transform-origin:bottom right;box-shadow:0 10px 30px rgba(50,35,27,.16);transition:.16s ease;z-index:10}.message-attachment-control.open .message-photo-button{opacity:1;visibility:visible;pointer-events:auto;transform:none}.message-attachment-control .message-photo-button svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.message-attachment-control .message-photo-button span{font-size:.72rem;line-height:1;font-weight:600}@media(max-width:640px){.message-attachment-control .message-photo-button{right:-5px;width:52px}.message-attachment-control .message-photo-button span{display:none}}
 .account-page #customerMessageForm{position:relative;z-index:25;overflow:visible!important;background:#fff}.account-page #customerMessageForm .message-attachment-control{z-index:26}.account-page #customerMessageForm .message-photo-button{z-index:27}
 .profile-form>.wide,.profile-form>.check-line,.profile-form>button{grid-column:1/-1!important}.profile-photo-field{display:flex;align-items:center;gap:20px;padding:18px 20px;border-radius:14px;background:#f7f1eb}.profile-photo-preview{display:grid;place-items:center;width:92px;height:92px;min-width:92px;overflow:hidden;border-radius:50%;background:#c48b60;color:#fff;font:28px "Italiana",serif}.profile-photo-preview img{width:100%;height:100%;object-fit:cover}.profile-photo-field>div:last-child{display:flex;flex:1;flex-wrap:wrap;align-items:center;gap:8px 14px}.profile-photo-field label{flex:1 0 100%;margin:0!important}.profile-photo-field input[type="file"]{padding:10px!important;background:#fff}.profile-photo-field small{color:#77675d;font-size:10px}.profile-photo-field button{border:0;border-bottom:1px solid #6d5141;background:transparent;color:#52382c;padding:5px 0;font-size:10px}.member-mini>span{overflow:hidden}.member-mini>span img{width:100%;height:100%;object-fit:cover}.profile-form label.wide textarea{width:100%}@media(max-width:640px){.profile-form{grid-template-columns:1fr!important}.profile-photo-field{align-items:flex-start;padding:16px}.profile-photo-preview{width:74px;height:74px;min-width:74px}.profile-photo-field>div:last-child{min-width:0}.profile-photo-field small{line-height:1.4}}
+/* Keep the review action legible while it is tapped on touch devices. */
+.account-page .completed-review-prompt .rate-order{
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  background:#3a3028!important;
+  border-color:#3a3028!important;
+  color:#fff!important;
+  -webkit-text-fill-color:#fff;
+}
+@media(hover:hover){
+  .account-page .completed-review-prompt .rate-order:hover{
+    background:#533c31!important;
+    border-color:#533c31!important;
+    color:#fff!important;
+  }
+}
+.account-page .completed-review-prompt .rate-order:active{
+  transform:translateY(1px);
+  background:#241a16!important;
+  border-color:#241a16!important;
+  color:#fff!important;
+}
+.account-page .completed-review-prompt .rate-order:focus-visible{
+  outline:2px solid #a87351;
+  outline-offset:3px;
+}
