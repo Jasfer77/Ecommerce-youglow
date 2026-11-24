@@ -40,7 +40,12 @@ class CheckoutService
                 $product=Product::whereKey($productId)->where('is_active',true)->lockForUpdate()->firstOrFail();
                 $stocks=$product->stocks()->where('quantity','>',0)->orderBy('expiry_date')->lockForUpdate()->get();
                 $available=(int)$stocks->sum('quantity');
-                if($quantity<1 || $quantity>$available) throw ValidationException::withMessages(['items'=>"Insufficient stock for {$product->name}. Only {$available} available."]);
+                if($quantity<1 || $quantity>$available) {
+                    $message=$available===0
+                        ? "{$product->name} is out of stock and cannot be checked out."
+                        : "Insufficient stock for {$product->name}. Only {$available} available.";
+                    throw ValidationException::withMessages(['items'=>$message]);
+                }
                 $line=(float)$product->price*$quantity; $subtotal+=$line; $lines[]=[$product,$stocks,$quantity,$line];
             }
             $discount=null; $discountAmount=0;

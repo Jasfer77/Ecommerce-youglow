@@ -272,3 +272,11 @@ html.inside-customer-account .checkout-step.active{animation:checkout-focus-in .
 .saved-delivery-choice b{color:#402c23;font-size:13px;font-weight:600}
 .saved-delivery-choice small{color:#75645a;font-size:11px;line-height:1.45}
 .form-grid input[readonly],.form-grid textarea[readonly]{background:#f6f0e9;color:#4b3a31;cursor:not-allowed}
+/* Inventory availability states. */
+.catalog-card.is-out-of-stock .catalog-image img{filter:grayscale(.35);opacity:.72}
+.catalog-card.is-out-of-stock .add-button{border-color:#b9aaa0;color:#8b7d74;cursor:not-allowed}
+.catalog-card.is-out-of-stock .add-button:hover{background:transparent;color:#8b7d74}
+.product-stock-message{margin:12px 0 0!important;color:#9a3f31!important;font-size:11px!important;font-weight:600!important;letter-spacing:0!important;text-transform:none!important}
+.cart-line.is-out-of-stock{background:#fff7f4}
+.cart-stock-warning{margin-top:7px!important;color:#9a3f31!important;font-size:10px!important;font-weight:600}
+.cart-summary #checkoutButton:disabled{background:#a89c94;color:#fff;cursor:not-allowed;opacity:1}

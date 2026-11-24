@@ -13,6 +13,15 @@ try {
 
 function saveCart() { localStorage.setItem('yg-cart',JSON.stringify(cart)); renderCart();if(window.parent!==window)window.parent.postMessage({type:'yg-cart-updated'},location.origin); }
 function escapeHtml(text){const node=document.createElement('div');node.textContent=text??'';return node.innerHTML;}
+async function refreshCatalogAvailability(){
+  const latest=await YG_api(`/api/products?stock_check=${Date.now()}`);
+  const currentById=new Map(products.map(product=>[String(product.id),product]));
+  products=latest.filter(product=>product.isActive!==false).map(product=>({...currentById.get(String(product.id)),...product}));
+  return products;
+}
+function unavailableCartProducts(){
+  return Object.keys(cart).map(id=>products.find(product=>String(product.id)===String(id))).filter(product=>!product||!product.inStock);
+}
 function selectedPaymentMethod(){const selected=$('#checkoutForm').elements.payment?.value;return checkoutPaymentMethods.find(method=>method.name===selected);}
 function renderPaymentDetails(){const method=selectedPaymentMethod();if(!method){$('#paymentDetails').innerHTML='';$('#uploadZone').hidden=true;return;}$('#paymentDetails').innerHTML=`${method.qrUrl?`<img src="${method.qrUrl}" alt="${escapeHtml(method.name)} payment QR code">`:''}<div>${method.bankName?`<small>Bank / wallet</small><strong>${escapeHtml(method.bankName)}</strong>`:''}${method.accountName?`<small>Account name</small><strong>${escapeHtml(method.accountName)}</strong>`:''}${method.accountNumber?`<small>Account number</small><strong>${escapeHtml(method.accountNumber)}</strong>`:''}${method.instructions?`<p>${escapeHtml(method.instructions)}</p>`:''}</div>`;$('#uploadZone').hidden=!method.requiresReceipt;}
 function renderPaymentMethods(){if(!checkoutPaymentMethods.length){$('#paymentOptions').innerHTML='<p>No payment methods are currently available. Please contact support.</p>';$('#checkoutNext').disabled=true;renderPaymentDetails();return;}$('#checkoutNext').disabled=false;$('#paymentOptions').innerHTML=checkoutPaymentMethods.map((method,index)=>`<label><input type="radio" name="payment" value="${escapeHtml(method.name)}" ${index===0?'checked':''}><span><b>${escapeHtml(method.name)}</b><small>${method.requiresReceipt?'Receipt required':'No receipt required'}</small></span></label>`).join('');document.querySelectorAll('[name="payment"]').forEach(input=>input.onchange=renderPaymentDetails);renderPaymentDetails();}
@@ -38,14 +47,17 @@ function renderProducts() {
   let list=[...products];
   if(sort==='low') list.sort((a,b)=>a.price-b.price); if(sort==='high') list.sort((a,b)=>b.price-a.price);
   $('#resultCount').textContent=list.length;
-  $('#productGrid').innerHTML=list.map(product=>{const artwork=collectionArtwork(product);const duration=productDuration(product);return `<article class="catalog-card"><div class="catalog-image ${product.tone}"><span class="stock-pill">${product.inStock?'In stock':'Out of stock'}</span>${artwork?`<img class="catalog-product-image" src="${escapeHtml(artwork)}" alt="${escapeHtml(product.name)}">`:`<div class="catalog-bottle">${escapeHtml(product.short)}</div>`}</div><div class="catalog-body"><p>${escapeHtml(product.category)}</p><h3>${escapeHtml(product.name)}</h3>${duration?`<p class="product-duration">${duration}</p>`:''}<p class="benefit">${escapeHtml(product.benefit)}</p><div class="price-row"><strong>${money(product.price)}</strong><button class="add-button" data-add="${product.id}" aria-label="Add ${escapeHtml(product.name)} to bag" ${product.inStock?'':'disabled'}>+</button></div></div></article>`;}).join('')||'<p>No products are currently available.</p>';
-  document.querySelectorAll('[data-add]').forEach(button=>button.onclick=()=>{cart[button.dataset.add]=(cart[button.dataset.add]||0)+1;saveCart();showToast('Added to your bag');});
+  $('#productGrid').innerHTML=list.map(product=>{const artwork=collectionArtwork(product);const duration=productDuration(product);return `<article class="catalog-card ${product.inStock?'':'is-out-of-stock'}"><div class="catalog-image ${product.tone}"><span class="stock-pill">${product.inStock?'In stock':'Out of stock'}</span>${artwork?`<img class="catalog-product-image" src="${escapeHtml(artwork)}" alt="${escapeHtml(product.name)}">`:`<div class="catalog-bottle">${escapeHtml(product.short)}</div>`}</div><div class="catalog-body"><p>${escapeHtml(product.category)}</p><h3>${escapeHtml(product.name)}</h3>${duration?`<p class="product-duration">${duration}</p>`:''}<p class="benefit">${escapeHtml(product.benefit)}</p><div class="price-row"><strong>${money(product.price)}</strong><button class="add-button" data-add="${product.id}" aria-label="${product.inStock?'Add':'Out of stock:'} ${escapeHtml(product.name)}" aria-disabled="${product.inStock?'false':'true'}">+</button></div>${product.inStock?'':'<p class="product-stock-message">This item is out of stock and cannot be added to your cart.</p>'}</div></article>`;}).join('')||'<p>No products are currently available.</p>';
+  document.querySelectorAll('[data-add]').forEach(button=>button.onclick=async()=>{button.disabled=true;try{await refreshCatalogAvailability();const product=products.find(item=>String(item.id)===String(button.dataset.add));if(!product?.inStock){renderProducts();renderCart();showToast(`${product?.name||'This item'} is out of stock and cannot be added.`);return;}cart[button.dataset.add]=(cart[button.dataset.add]||0)+1;saveCart();showToast('Added to your bag');}catch(error){showToast(error.message||'Could not verify stock. Please try again.');}finally{if(button.isConnected)button.disabled=false;}});
 }
 function renderCart() {
   let count=0,total=0;
-  const rows=Object.entries(cart).map(([id,quantity])=>{const product=products.find(item=>item.id===id);if(!product)return '';count+=quantity;total+=product.price*quantity;const artwork=collectionArtwork(product);return `<div class="cart-line"><div class="cart-thumb">${artwork?`<img src="${escapeHtml(artwork)}" alt="">`:escapeHtml(product.short)}</div><div><h4>${product.name}</h4><p>${money(product.price)}</p><div class="qty-controls"><button data-dec="${id}">−</button><span>${quantity}</span><button data-inc="${id}">+</button></div></div><button class="remove-item" data-remove="${id}">×</button></div>`;}).join('');
+  const rows=Object.entries(cart).map(([id,quantity])=>{const product=products.find(item=>String(item.id)===String(id));if(!product)return '';const unavailable=!product.inStock;count+=quantity;total+=product.price*quantity;const artwork=collectionArtwork(product);return `<div class="cart-line ${unavailable?'is-out-of-stock':''}"><div class="cart-thumb">${artwork?`<img src="${escapeHtml(artwork)}" alt="">`:escapeHtml(product.short)}</div><div><h4>${product.name}</h4><p>${money(product.price)}</p>${unavailable?'<p class="cart-stock-warning">Out of stock — remove this item to continue.</p>':''}<div class="qty-controls"><button data-dec="${id}">−</button><span>${quantity}</span><button data-inc="${id}" ${unavailable?'disabled':''}>+</button></div></div><button class="remove-item" data-remove="${id}">×</button></div>`;}).join('');
   $('#cartCount').textContent=count; $('#cartCount').hidden=count===0; $('#cartCount').classList.toggle('hidden',count===0); $('#cartSubtotal').textContent=money(total); $('#cartItems').innerHTML=rows||'<div class="empty-cart"><p class="script">Your ritual awaits</p><p>Your bag is currently empty.</p></div>';
-  document.querySelectorAll('[data-inc]').forEach(button=>button.onclick=()=>{cart[button.dataset.inc]++;saveCart();});
+  const unavailable=unavailableCartProducts();
+  $('#checkoutButton').disabled=unavailable.length>0;
+  $('#checkoutButton').innerHTML=unavailable.length?'Remove out-of-stock item':'Continue to checkout <span>→</span>';
+  document.querySelectorAll('[data-inc]').forEach(button=>button.onclick=async()=>{button.disabled=true;try{await refreshCatalogAvailability();const product=products.find(item=>String(item.id)===String(button.dataset.inc));if(!product?.inStock){renderProducts();renderCart();showToast(`${product?.name||'This item'} is out of stock.`);return;}cart[button.dataset.inc]++;saveCart();}catch(error){showToast(error.message||'Could not verify stock. Please try again.');}finally{if(button.isConnected)button.disabled=false;}});
   document.querySelectorAll('[data-dec]').forEach(button=>button.onclick=()=>{if(--cart[button.dataset.dec]<=0)delete cart[button.dataset.dec];saveCart();});
   document.querySelectorAll('[data-remove]').forEach(button=>button.onclick=()=>{delete cart[button.dataset.remove];saveCart();});
 }
@@ -116,6 +128,9 @@ async function submitOrderRequest(payload){
 }
 $('#checkoutButton').onclick=async()=>{
   if(!Object.keys(cart).length)return showToast('Your bag is empty');
+  try{await refreshCatalogAvailability();}catch(error){showToast(error.message||'Could not verify stock. Please try again.');return;}
+  const unavailable=unavailableCartProducts();
+  if(unavailable.length){renderProducts();renderCart();toggleCart(true);showToast(`${unavailable[0]?.name||'An item in your cart'} is out of stock. Remove it before checkout.`);return;}
   if(!signedInMember){showToast('Please sign in before confirming your order.');setTimeout(()=>location.href='/account',900);return;}
   toggleCart(false);
   const form=$('#checkoutForm');
@@ -158,8 +173,6 @@ async function initializeStore(){
   try{
     const documentOrder=['Tirzepatide 15 mg','Tirzepatide 30 mg','GHK-Cu 50 mg','NAD+ 50 mg'];
     products=(await YG_api('/api/products')).filter(product=>product.isActive!==false).sort((a,b)=>documentOrder.indexOf(a.name)-documentOrder.indexOf(b.name));
-    Object.keys(cart).forEach(id=>{if(!products.some(product=>product.id===id&&product.inStock))delete cart[id];});
-    localStorage.setItem('yg-cart',JSON.stringify(cart));
     renderProducts();renderCart();
   }catch(error){
     $('#productGrid').innerHTML='<p>Products could not be loaded. Please refresh the page.</p>';
