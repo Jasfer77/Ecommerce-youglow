@@ -23,8 +23,9 @@ class ProductController extends Controller
             if(!$isAdmin) $query->where('is_active',true);
             return $query->orderBy('id')->get()->map(fn(Product $product)=>$this->format($product, $isAdmin));
         };
-        $products=$isAdmin?$load():Cache::remember('public.products.v2',now()->addMinutes(5),$load);
-        return response()->json($products)->header('Cache-Control',$isAdmin?'private, no-store':'public, max-age=60, stale-while-revalidate=300');
+        $requiresFreshStock=$request->has('stock_check')||$request->has('account_stock_check');
+        $products=($isAdmin||$requiresFreshStock)?$load():Cache::remember('public.products.v2',now()->addMinutes(5),$load);
+        return response()->json($products)->header('Cache-Control',($isAdmin||$requiresFreshStock)?'private, no-store':'public, max-age=60, stale-while-revalidate=300');
     }
 
     public function image(Product $product)
@@ -108,7 +109,8 @@ class ProductController extends Controller
     {
         $product->loadMissing(['category','stocks'=>fn($q)=>$q->orderBy('expiry_date')]); $stock=$product->stocks->first();
         $image=$product->images[0]??null;
-        $payload=['id'=>(string)$product->id,'name'=>$product->name,'short'=>$product->attributes['short']??$product->sku,'category'=>$product->category->name,'price'=>(float)$product->price,'tone'=>$product->attributes['tone']??'peach','benefit'=>$product->description,'imageUrl'=>$image?route('products.image',$product,absolute:false):null,'inStock'=>$product->stocks->sum('quantity')>0];
+        $availableStock=(int)$product->stocks->sum('quantity');
+        $payload=['id'=>(string)$product->id,'name'=>$product->name,'short'=>$product->attributes['short']??$product->sku,'category'=>$product->category->name,'price'=>(float)$product->price,'tone'=>$product->attributes['tone']??'peach','benefit'=>$product->description,'imageUrl'=>$image?route('products.image',$product,absolute:false):null,'inStock'=>$availableStock>0,'availableStock'=>$availableStock];
         if($includeInventory) $payload+=['sku'=>$product->sku,'weight_kg'=>(float)$product->weight_kg,'stock'=>(int)$product->stocks->sum('quantity'),'batch'=>$stock?->batch_number??'—','expiry'=>$stock?->expiry_date?->format('Y-m-d'),'isActive'=>$product->is_active];
         return $payload;
     }
