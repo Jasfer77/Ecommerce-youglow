@@ -788,3 +788,8 @@
   outline:2px solid #a87351;
   outline-offset:3px;
 }
+/* Customer-account cart inventory states. */
+.account-cart-line.is-out-of-stock{margin-inline:-10px;padding-inline:10px;border-radius:10px;background:#fff4f0}
+.account-cart-stock-warning{margin-top:7px!important;color:#9a3f31!important;font-size:10px!important;font-weight:600!important;line-height:1.4}
+.account-cart-quantity button:disabled{color:#9b8b82;cursor:not-allowed;opacity:.55}
+.account-cart-summary #accountCheckoutButton:disabled{background:#a89c94!important;color:#fff!important;cursor:not-allowed;opacity:1}
