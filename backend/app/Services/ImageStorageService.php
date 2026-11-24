@@ -34,6 +34,11 @@ class ImageStorageService
         return $this->store($file, 'local', 'profile-photos', 640, 640, 'jpeg', 84);
     }
 
+    public function feedbackPhoto(UploadedFile $file): string
+    {
+        return $this->store($file, 'local', 'feedback-photos', 1600, 1600, 'jpeg', 84);
+    }
+
     private function store(
         UploadedFile $file,
         string $disk,

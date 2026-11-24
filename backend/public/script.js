@@ -321,6 +321,8 @@ const safeFeedbackText = (value) =>
                 "'": "&#039;",
             })[character],
     );
+const feedbackCard = (item, expanded = false) =>
+    `<article class="customer-feedback-card${expanded ? " expanded-review" : " reveal"}"><span class="feedback-stars" aria-label="${item.rating} out of 5 stars">★ ${Number(item.rating).toFixed(1)}</span>${item.photos?.length ? `<div class="public-feedback-photos">${item.photos.slice(0, 3).map((url, index) => `<a href="${safeFeedbackText(url)}" target="_blank" rel="noopener"><img src="${safeFeedbackText(url)}" alt="Customer review photo ${index + 1}" loading="lazy"></a>`).join("")}</div>` : ""}<blockquote>“${safeFeedbackText(item.comment)}”</blockquote><footer><strong>${safeFeedbackText(item.customer)}</strong><small>${safeFeedbackText(item.date || "Verified customer")}</small></footer></article>`;
 fetch("/api/feedback")
     .then((response) => (response.ok ? response.json() : Promise.reject()))
     .then((feedback) => {
@@ -333,8 +335,7 @@ fetch("/api/feedback")
         feedbackHost.innerHTML = feedback
             .slice(0, 3)
             .map(
-                (item) =>
-                    `<article class="customer-feedback-card reveal"><span class="feedback-stars" aria-label="${item.rating} out of 5 stars">★ ${Number(item.rating).toFixed(1)}</span><blockquote>“${safeFeedbackText(item.comment)}”</blockquote><footer><strong>${safeFeedbackText(item.customer)}</strong><small>${safeFeedbackText(item.date || "Verified customer")}</small></footer></article>`,
+                (item) => feedbackCard(item),
             )
             .join("");
         feedbackHost
@@ -346,3 +347,27 @@ fetch("/api/feedback")
             feedbackHost.innerHTML =
                 '<article class="feedback-empty"><span>♡</span><h3>Customer feedback</h3><p>Feedback is temporarily unavailable.</p></article>';
     });
+
+const reviewsDialog = document.querySelector("#reviewsDialog");
+const viewAllReviews = document.querySelector("#viewAllReviews");
+const allCustomerReviews = document.querySelector("#allCustomerReviews");
+if (reviewsDialog && viewAllReviews && allCustomerReviews) {
+    viewAllReviews.addEventListener("click", async () => {
+        reviewsDialog.showModal();
+        allCustomerReviews.innerHTML = "<p class=\"reviews-loading\">Loading customer reviews…</p>";
+        try {
+            const response = await fetch("/api/feedback?all=1", { headers: { Accept: "application/json" } });
+            if (!response.ok) throw new Error();
+            const reviews = await response.json();
+            allCustomerReviews.innerHTML = reviews.length
+                ? reviews.map((review) => feedbackCard(review, true)).join("")
+                : '<p class="reviews-loading">No approved customer reviews yet.</p>';
+        } catch (_) {
+            allCustomerReviews.innerHTML = '<p class="reviews-loading">Reviews are temporarily unavailable. Please try again.</p>';
+        }
+    });
+    document.querySelector("#closeReviewsDialog").addEventListener("click", () => reviewsDialog.close());
+    reviewsDialog.addEventListener("click", (event) => {
+        if (event.target === reviewsDialog) reviewsDialog.close();
+    });
+}

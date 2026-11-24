@@ -9,11 +9,11 @@ class CustomerFeedback extends Model
 {
     protected $table = 'customer_feedback';
 
-    protected $fillable = ['user_id', 'order_id', 'customer_name', 'rating', 'comment', 'is_approved', 'submitted_at'];
+    protected $fillable = ['user_id', 'order_id', 'customer_name', 'rating', 'comment', 'photo_paths', 'is_approved', 'submitted_at'];
 
     protected function casts(): array
     {
-        return ['rating'=>'integer', 'is_approved'=>'boolean', 'submitted_at'=>'datetime'];
+        return ['rating'=>'integer', 'photo_paths'=>'array', 'is_approved'=>'boolean', 'submitted_at'=>'datetime'];
     }
 
     public function user(): BelongsTo

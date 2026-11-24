@@ -115,7 +115,15 @@
       <div class="trust-grid feedback-grid" id="customerFeedback" aria-live="polite">
         <article class="feedback-loading"><span>★</span><h3>Customer feedback</h3><p>Loading recent customer experiences…</p></article>
       </div>
+      <button class="community-reviews-button" id="viewAllReviews" type="button">View all reviews <span>→</span></button>
     </section>
+
+    <dialog class="reviews-dialog" id="reviewsDialog" aria-labelledby="reviewsDialogTitle">
+      <div class="reviews-dialog-card">
+        <header><div><p class="eyebrow">Verified customer feedback</p><h2 id="reviewsDialogTitle">Community reviews</h2></div><button type="button" id="closeReviewsDialog" aria-label="Close all reviews">×</button></header>
+        <div class="reviews-dialog-list" id="allCustomerReviews"><p>Loading reviews…</p></div>
+      </div>
+    </dialog>
 
     <section class="transaction-proof" aria-labelledby="transactionProofTitle">
       <div class="transaction-proof-copy reveal">
@@ -223,6 +231,6 @@
     <p class="copyright">© <span id="year"></span> You Glow Cebu Beauty &amp; Wellness</p>
   </footer>
   <script src="page-transition.js?v=4"></script>
-  <script src="script.js?v=14"></script>
+  <script src="script.js?v=16"></script>
 </body>
 </html>

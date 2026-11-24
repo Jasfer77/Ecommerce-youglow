@@ -6,7 +6,9 @@ use App\Models\CustomerFeedback;
 use App\Models\Order;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class CustomerFeedbackTest extends TestCase
@@ -72,6 +74,28 @@ class CustomerFeedbackTest extends TestCase
         $this->actingAs($customer)->postJson('/api/feedback',[
             'order_id'=>$delivered->id,'rating'=>5,'comment'=>'This is not my order.',
         ])->assertNotFound();
+    }
+
+    public function test_customer_can_attach_review_photos_to_a_delivered_order(): void
+    {
+        Storage::fake('local');
+        $customer=User::where('email','mia@example.com')->firstOrFail();
+        $order=$this->orderFor($customer,'delivered');
+
+        $response=$this->actingAs($customer)->post('/api/feedback',[
+            'order_id'=>$order->id,
+            'rating'=>5,
+            'comment'=>'The products arrived safely and looked exactly as expected.',
+            'photos'=>[
+                UploadedFile::fake()->image('delivery.jpg',900,900),
+                UploadedFile::fake()->image('products.png',700,700),
+            ],
+        ],['Accept'=>'application/json']);
+
+        $response->assertCreated()->assertJsonCount(2,'photos');
+        $feedback=CustomerFeedback::where('order_id',$order->id)->firstOrFail();
+        $this->assertCount(2,$feedback->photo_paths);
+        foreach($feedback->photo_paths as $path) Storage::disk('local')->assertExists($path);
     }
 
     private function orderFor(User $customer,string $deliveryStatus): Order
