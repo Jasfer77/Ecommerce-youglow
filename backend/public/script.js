@@ -361,7 +361,7 @@ if (reviewsDialog && viewAllReviews && allCustomerReviews) {
             const reviews = await response.json();
             allCustomerReviews.innerHTML = reviews.length
                 ? reviews.map((review) => feedbackCard(review, true)).join("")
-                : '<p class="reviews-loading">No approved customer reviews yet.</p>';
+                : '<div class="reviews-empty"><span>♡</span><h3>No published reviews yet</h3><p>Verified customer experiences will be displayed here after administrator approval.</p></div>';
         } catch (_) {
             allCustomerReviews.innerHTML = '<p class="reviews-loading">Reviews are temporarily unavailable. Please try again.</p>';
         }
